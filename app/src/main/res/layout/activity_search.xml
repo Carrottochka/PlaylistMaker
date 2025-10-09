@@ -29,7 +29,7 @@
 
 
         android:textColor="@color/gray_400"
-        app:icon="@drawable/search"
+        app:icon="@drawable/ic_search_24"
         app:iconGravity="textStart"
         app:iconPadding="10dp"
         app:iconSize="24dp"
@@ -66,14 +66,14 @@
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/search"
+                android:src="@drawable/ic_search_24"
                 app:tint="@color/blue" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/button_search"
-                android:textSize="12sp"
+                android:textSize="@dimen/text_size_small"
                 android:textColor="@color/blue"
                 android:layout_marginTop="4dp" />
 
@@ -91,14 +91,14 @@
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/mediateka"
+                android:src="@drawable/ic_mediateka_24"
                 app:tint="@color/blackY" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/button2"
-                android:textSize="12sp"
+                android:textSize="@dimen/text_size_small"
                 android:textColor="@color/blackY"
                 android:layout_marginTop="4dp" />
 
@@ -116,14 +116,14 @@
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/settings"
+                android:src="@drawable/ic_settings_24"
                 app:tint="@color/blackY" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/button3"
-                android:textSize="12sp"
+                android:textSize="@dimen/text_size_small"
                 android:textColor="@color/blackY"
                 android:layout_marginTop="4dp" />
 

@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_gravity="center"
-    android:background="#3772E7"
+    android:background="@color/blue"
     android:orientation="vertical"
     android:padding="16dp">
 
@@ -18,8 +18,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="32dp"
             android:text="@string/app_name"
-            android:textColor="#ffffff"
-            android:textSize="20sp" />
+            android:textColor="@color/white"
+            android:textSize="22sp" />
     </FrameLayout>
 
     <com.google.android.material.button.MaterialButton
@@ -29,32 +29,32 @@
         android:layout_height="220dp"
         android:layout_weight="1"
         style="@style/rounded_button"
-
-
         android:text="@string/button1"
+        android:textAllCaps="false"
+        android:textSize="@dimen/text_size_large"
         android:textColor="@color/black"
-        app:icon="@drawable/search"
+        app:icon="@drawable/ic_search_24"
         app:iconGravity="textStart"
-        app:iconPadding="10dp"
-        app:iconSize="24dp"
+        app:iconPadding="@dimen/icon_padding_small"
+        app:iconSize="@dimen/icon_size"
         app:iconTint="@color/black"
 
         />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/button2"
-
         android:layout_width="match_parent"
         android:layout_height="220dp"
         android:layout_weight="1"
         style="@style/rounded_button"
-
         android:text="@string/button2"
+        android:textAllCaps="false"
+        android:textSize="@dimen/text_size_large"
         android:textColor="@color/black"
-        app:icon="@drawable/mediateka"
+        app:icon="@drawable/ic_mediateka_24"
         app:iconGravity="textStart"
-        app:iconPadding="10dp"
-        app:iconSize="24dp"
+        app:iconPadding="@dimen/icon_padding_small"
+        app:iconSize="@dimen/icon_size"
         app:iconTint="@color/black"
 
         />
@@ -66,13 +66,14 @@
         android:layout_height="220dp"
         android:layout_weight="1"
         style="@style/rounded_button"
-
         android:text="@string/button3"
+        android:textAllCaps="false"
+        android:textSize="@dimen/text_size_large"
         android:textColor="@color/black"
-        app:icon="@drawable/settings"
+        app:icon="@drawable/ic_settings_24"
         app:iconGravity="textStart"
-        app:iconPadding="10dp"
-        app:iconSize="24dp"
+        app:iconPadding="@dimen/icon_padding_small"
+        app:iconSize="@dimen/icon_size"
         app:iconTint="@color/black"
 
         />

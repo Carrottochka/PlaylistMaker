@@ -23,15 +23,6 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-
-        /* val button1ClickListener: View.OnClickListener = object: View.OnClickListener{
-             override fun onClick(v: View?) {
-
-                 Toast.makeText(this@MainActivity, "Нажали на кноку!", Toast.LENGTH_LONG).show()
-             }
-         }
-             button1.setOnClickListener(button1ClickListener)*/
-
         val button2 = findViewById<MaterialButton>(R.id.button2)
         button2.setOnClickListener {
             val intent = Intent(this, MediatekaActivity::class.java)

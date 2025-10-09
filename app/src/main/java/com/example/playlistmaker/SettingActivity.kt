@@ -22,9 +22,7 @@ class SettingActivity : AppCompatActivity() {
 
 
         val toolbarBack = findViewById<Toolbar>(R.id.toolbarBack)
-        setSupportActionBar(toolbarBack)
 
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         toolbarBack.setOnClickListener {
             println("Кнопка back нажата!")
