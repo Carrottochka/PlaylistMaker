@@ -6,22 +6,23 @@
     android:layout_height="wrap_content"
     android:background="@color/white"
     android:orientation="vertical"
-    android:padding="16dp"
     tools:context=".MainActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbarBack"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
+        android:layout_height="wrap_content"
+        android:paddingTop="4dp"
         app:navigationIcon="@drawable/ic_arrow_back_24"
         app:title="@string/button3" />
+
 
     <androidx.appcompat.widget.SwitchCompat
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="80dp"
+        android:layout_marginTop="24dp"
         android:minHeight="61dp"
-        android:paddingStart="12dp"
+        android:paddingStart="16dp"
         android:paddingEnd="8dp"
         android:text="@string/dark_theme" />
 
@@ -34,7 +35,7 @@
         android:gravity="center_vertical"
         android:maxLines="1"
         android:minHeight="61dp"
-        android:paddingHorizontal="12dp"
+        android:paddingHorizontal="16dp"
         android:text="@string/share_app"
         android:textColor="@color/black"
         app:drawableEndCompat="@drawable/ic_share_24" />
@@ -48,7 +49,7 @@
         android:gravity="center_vertical"
         android:maxLines="1"
         android:minHeight="61dp"
-        android:paddingHorizontal="12dp"
+        android:paddingHorizontal="16dp"
         android:text="@string/contact_support"
         android:textColor="@color/black"
         app:drawableEndCompat="@drawable/ic_group_24" />
@@ -62,7 +63,7 @@
         android:gravity="center_vertical"
         android:maxLines="1"
         android:minHeight="61dp"
-        android:paddingHorizontal="12dp"
+        android:paddingHorizontal="16dp"
         android:text="@string/user_agreement"
         android:textColor="@color/black"
         app:drawableEndCompat="@drawable/ic_arrow_forward_24" />
