@@ -6,7 +6,7 @@
     android:layout_gravity="center"
     android:background="@color/blue"
     android:orientation="vertical"
-    android:padding="4dp">
+    android:padding="16dp">
 
     <FrameLayout
         android:layout_width="match_parent"
