@@ -10,4 +10,10 @@
     <string name="contact_support">Написать в поддержку</string>
     <string name="user_agreement">Пользовательское соглашение</string>
     <string name="button_search">Поиск</string>
+
+    <string name="email">carrottochka@gmail.com</string>
+    <string name="subject">Сообщение разработчикам и разработчицам приложения Playlist Maker</string>
+    <string name="body">Спасибо разработчикам и разработчицам за крутое приложение!</string>
+    <string name="course_url">https://practicum.yandex.ru/android-developer/</string>
+    <string name="offer">https://yandex.ru/legal/practicum_offer/</string>
 </resources>

@@ -29,9 +29,9 @@ class SettingActivity : AppCompatActivity() {
         shareApp.setOnClickListener {
             val intentShare = Intent(Intent.ACTION_SEND)
             intentShare.type = "text/plain"
+            val courseUrl=getString(R.string.course_url)
             intentShare.putExtra(
-                Intent.EXTRA_TEXT,
-                "https://practicum.yandex.ru/android-developer/"
+                Intent.EXTRA_TEXT,courseUrl
             )
             startActivity(Intent.createChooser(intentShare, "Поделиться через"))
         }
@@ -41,9 +41,9 @@ class SettingActivity : AppCompatActivity() {
         val contactSupport = findViewById<TextView>(R.id.contactSupport)
         contactSupport.setOnClickListener {
             val intentSupport = Intent(Intent.ACTION_SENDTO).apply {
-                val studentEmail = "carrottochka@gmail.com"
-                val subject = "Сообщение разработчикам и разработчицам приложения Playlist Maker"
-                val body = "Спасибо разработчикам и разработчицам за крутое приложение!"
+                val studentEmail =getString(R.string.email)
+                val subject = getString(R.string.subject)
+                val body = getString(R.string.body)
                 val uriText = "mailto:$studentEmail" +
                         "?subject=${Uri.encode(subject)}" +
                         "&body=${Uri.encode(body)}"
@@ -72,8 +72,9 @@ class SettingActivity : AppCompatActivity() {
     fun setupUserAgreement() {
         val userAgreement = findViewById<TextView>(R.id.userAgreement)
         userAgreement.setOnClickListener {
+            val offer= getString(R.string.offer)
             val intentUserAgreement =
-                Intent(Intent.ACTION_VIEW, Uri.parse("https://yandex.ru/legal/practicum_offer/"))
+                Intent(Intent.ACTION_VIEW, Uri.parse(offer))
             startActivity(intentUserAgreement)
         }
     }

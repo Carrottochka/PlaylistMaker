@@ -22,129 +22,39 @@
 
     </com.google.android.material.appbar.MaterialToolbar>
 
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp">
+
+        >
 
         <EditText
             android:id="@+id/inputEditText"
             style="@style/text_setting_second_display"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:layout_weight="1"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
             android:background="@drawable/rounded_textview"
-            android:drawableStart="@drawable/ic_search_24"
+            android:drawableStart="@drawable/ic_search_icon_16"
             android:drawablePadding="8dp"
             android:focusable="true"
             android:focusableInTouchMode="true"
             android:hint="@string/button1"
             android:inputType="text"
-            android:maxLines="0"
+            android:maxLines="1"
             android:padding="8dp" />
 
         <ImageView
             android:id="@+id/clearIcon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:layout_gravity="center|end"
+            android:layout_marginEnd="24dp"
             android:src="@android:drawable/ic_menu_close_clear_cancel"
             android:visibility="gone" />
-    </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
-
-    <!-- Навигационное меню -->
-    <!--разделитель -->
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#FFFFFF"
-        android:baselineAligned="false"
-        android:gravity="center"
-        android:orientation="horizontal">
-
-        <!-- Поиск (активный) -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="?attr/selectableItemBackground"
-            android:gravity="center"
-            android:orientation="vertical">
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_search_24"
-                app:tint="@color/YP_blue" />
+    </FrameLayout>
 
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="@string/button_search"
-                android:textColor="@color/YP_blue"
-                android:textSize="@dimen/text_size_small" />
 
-        </LinearLayout>
-
-        <!-- Медиатека -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="?attr/selectableItemBackground"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_mediateka_24"
-                app:tint="@color/YP_black" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="@string/button2"
-                android:textColor="@color/YP_black"
-                android:textSize="@dimen/text_size_small" />
-
-        </LinearLayout>
-
-        <!-- Настройки -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="?attr/selectableItemBackground"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_settings_24"
-                app:tint="@color/YP_black" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="@string/button3"
-                android:textColor="@color/YP_black"
-                android:textSize="@dimen/text_size_small" />
-
-        </LinearLayout>
-    </LinearLayout>
 </LinearLayout>
