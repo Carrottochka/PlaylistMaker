@@ -1,14 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="rounded_button" parent="Widget.MaterialComponents.Button">
-        <item name="backgroundTint">@color/white</item>
+    <style name="rounded_button" parent="Widget.MaterialComponents.Button.UnelevatedButton">
+        <item name="backgroundTint">@color/YP_white</item>
         <item name="cornerRadius">16dp</item>
         <item name="android:layout_marginStart">16dp</item>
         <item name="android:layout_marginEnd">16dp</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">220dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textColor">@color/YP_black</item>
+        <item name="android:textSize">@dimen/text_size_large</item>
 
+    </style>
 
+    <style name="text_setting_second_display">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:drawablePadding">16dp</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:minHeight">61dp</item>
+        <item name="android:paddingHorizontal">16dp</item>
+        <item name="android:fontFamily">@font/ys_display_regular</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">?attr/editTextBackgroundColor</item>
 
+    </style>
+
+    <style name="CustomToolbarStyle" parent="Widget.AppCompat.Toolbar">
+        <item name="android:fontFamily">@font/ys_display_medium</item>
+        <item name="titleTextAppearance">@style/CustomToolbarTitleTextAppearance</item>
+    </style>
+
+    <style name="CustomToolbarTitleTextAppearance" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:fontFamily">@font/ys_display_medium</item>
+        <item name="android:textSize">22sp</item>
+        <item name="android:textColor">?attr/editTextBackgroundColor</item>
+        <item name="iconTint">?attr/editTextBackgroundColor</item>
     </style>
 
 </resources>
