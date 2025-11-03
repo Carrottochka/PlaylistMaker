@@ -1,132 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="?attr/android:colorBackground"
     android:orientation="vertical"
-    android:padding="20dp">
+    tools:context=".MainActivity">
 
     <!-- Заголовок -->
-    <TextView
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbarBack"
+        style="@style/CustomToolbarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:text="@string/button_search"
+        app:navigationIcon="@drawable/ic_arrow_back_24"
+        app:navigationIconTint="?attr/colorControlNormal"
+        app:title="@string/button1">
 
-        android:textColor="@color/black"
-        android:textSize="18sp" />
+    </com.google.android.material.appbar.MaterialToolbar>
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/button_search"
-        style="@style/rounded_button"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:backgroundTint="@color/gray"
-        android:gravity="start|center_vertical"
-        android:text="@string/button_search"
-        android:textAlignment="textStart"
+
+        >
+
+        <EditText
+            android:id="@+id/inputEditText"
+            style="@style/text_setting_second_display"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/rounded_textview"
+            android:drawableStart="@drawable/ic_search_icon_16"
+            android:drawablePadding="8dp"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:hint="@string/button1"
+            android:inputType="text"
+            android:maxLines="1"
+            android:padding="8dp" />
+
+        <ImageView
+            android:id="@+id/clearIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center|end"
+            android:layout_marginEnd="24dp"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            android:visibility="gone" />
+    </FrameLayout>
 
 
-        android:textColor="@color/gray_400"
-        app:icon="@drawable/ic_search_24"
-        app:iconGravity="textStart"
-        app:iconPadding="10dp"
-        app:iconSize="24dp"
-        app:iconTint="@color/gray_400"
-        app:textAllCaps="false"
 
-        />
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="#E0E0E0" />
-
-    <!-- Навигационное меню -->
-    <!--разделитель -->
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:background="#FFFFFF"
-        android:gravity="center"
-        android:baselineAligned="false">
-
-        <!-- Поиск (активный) -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:background="?attr/selectableItemBackground">
-
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_search_24"
-                app:tint="@color/blue" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/button_search"
-                android:textSize="@dimen/text_size_small"
-                android:textColor="@color/blue"
-                android:layout_marginTop="4dp" />
-
-        </LinearLayout>
-
-        <!-- Медиатека -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:background="?attr/selectableItemBackground">
-
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_mediateka_24"
-                app:tint="@color/blackY" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/button2"
-                android:textSize="@dimen/text_size_small"
-                android:textColor="@color/blackY"
-                android:layout_marginTop="4dp" />
-
-        </LinearLayout>
-
-        <!-- Настройки -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:background="?attr/selectableItemBackground">
-
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_settings_24"
-                app:tint="@color/blackY" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/button3"
-                android:textSize="@dimen/text_size_small"
-                android:textColor="@color/blackY"
-                android:layout_marginTop="4dp" />
-
-        </LinearLayout>
-    </LinearLayout>
 </LinearLayout>
