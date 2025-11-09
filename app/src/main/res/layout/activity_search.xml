@@ -18,7 +18,7 @@
         android:layout_marginBottom="16dp"
         app:navigationIcon="@drawable/ic_arrow_back_24"
         app:navigationIconTint="?attr/colorControlNormal"
-        app:title="@string/button1">
+        android:title="@string/button1">
 
     </com.google.android.material.appbar.MaterialToolbar>
 
@@ -55,6 +55,11 @@
             android:visibility="gone" />
     </FrameLayout>
 
-
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/trackList"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@string/trackList"
+        xmlns:android="http://schemas.android.com/apk/res/android" />
 
 </LinearLayout>

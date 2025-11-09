@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
 
     <style name="Base.Theme.PlaylistMaker" parent="Theme.Material3.DayNight.NoActionBar">
 
@@ -11,16 +11,20 @@
         <item name="android:colorBackground">@color/YP_black</item>
         <item name="colorOnBackground">@color/YP_white</item>
 
-        <item name="colorSurface">@color/YP_dark_gray</item>
+
         <item name="colorOnSurface">@color/YP_white</item>
         <item name="editTextBackgroundColor">@color/YP_white</item>
 
         <item name="colorControlNormal">@android:color/white</item>
 
     </style>
+    <!-- Base application theme. -->
+    <style name="Base.Base.Theme.PlaylistMaker" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your dark theme here. -->
+        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+    </style>
 
-
-
+    <!-- <item name="colorSurface">@color/YP_dark_gray</item>-->
 
 
 </resources>
