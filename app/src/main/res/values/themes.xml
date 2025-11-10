@@ -15,6 +15,7 @@
         <item name="colorOnSurface">@color/YP_black</item>
 
         <item name="editTextBackgroundColor">@color/YP_black</item>
+        <item name="iconColor">@color/YP_gray</item>
 
         <item name="colorControlNormal">@android:color/black</item>
 

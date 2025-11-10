@@ -16,6 +16,7 @@
         <item name="editTextBackgroundColor">@color/YP_white</item>
 
         <item name="colorControlNormal">@android:color/white</item>
+        <item name="iconColor">@color/YP_black</item>
 
     </style>
     <!-- Base application theme. -->
