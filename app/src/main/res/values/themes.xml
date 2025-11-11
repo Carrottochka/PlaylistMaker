@@ -1,11 +1,11 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
 
     <style name="Base.Theme.PlaylistMaker" parent="Theme.Material3.DayNight.NoActionBar">
 
         <item name="colorPrimary">@color/YP_blue</item>
         <item name="colorOnPrimary">@color/YP_white</item>
 
-       <!-- <item name="colorSecondary">@color/YP_blue_light</item>-->
+        <!-- <item name="colorSecondary">@color/YP_blue_light</item>-->
         <item name="colorOnSecondary">@color/YP_white</item>
 
         <item name="android:colorBackground">@color/YP_white</item>
@@ -15,13 +15,16 @@
         <item name="colorOnSurface">@color/YP_black</item>
 
         <item name="editTextBackgroundColor">@color/YP_black</item>
+        <item name="iconColor">@color/YP_gray</item>
 
         <item name="colorControlNormal">@android:color/black</item>
 
     </style>
-
-
-
+    <!-- Base application theme. -->
+    <style name="Base.Base.Theme.PlaylistMaker" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+    </style>
 
 
 </resources>

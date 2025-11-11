@@ -8,24 +8,45 @@ import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import androidx.activity.enableEdgeToEdge
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.MaterialToolbar
+import model.MockData
+import model.TrackAdapter
+
 
 class SearchActivity : AppCompatActivity() {
 
     private lateinit var inputEditText: EditText
     private lateinit var clearButton: ImageView
 
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var adapter: TrackAdapter
+    private val mockTracks = MockData.getMockTracks()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         setContentView(R.layout.activity_search)
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.container)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
 
         inputEditText = findViewById(R.id.inputEditText)
         clearButton = findViewById(R.id.clearIcon)
+
 
         setupBackToolbar()
         setupInputEditText()
         setupTextWatcher()
         setupClearButton()
+
+        setupRecyclerView()
     }
 
     private fun setupBackToolbar() {
@@ -89,20 +110,34 @@ class SearchActivity : AppCompatActivity() {
         imm.hideSoftInputFromWindow(inputEditText.windowToken, 0)
     }
 
-    private var userSearch: String= SEARCH_DEF
+    private var userSearch: String = SEARCH_DEF
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putString(SEARCH_KEY, userSearch)
     }
-    companion object{
-        const val SEARCH_KEY="SEARCH_KEY"
-        const val SEARCH_DEF=""
+
+    companion object {
+        const val SEARCH_KEY = "SEARCH_KEY"
+        const val SEARCH_DEF = ""
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
-        userSearch=savedInstanceState.getString(SEARCH_KEY, SEARCH_DEF)
+        userSearch = savedInstanceState.getString(SEARCH_KEY, SEARCH_DEF)
         inputEditText.setText(userSearch)
     }
+
+    private fun setupRecyclerView() {
+        val includedView = findViewById<View>(R.id.trackList)
+        recyclerView = includedView.findViewById(R.id.trackList)
+        adapter = TrackAdapter(mockTracks)
+        // НАСТРАИВАЕМ RecyclerView
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.adapter = adapter
+        recyclerView.setHasFixedSize(true)
+
+
+    }
+
 
 }

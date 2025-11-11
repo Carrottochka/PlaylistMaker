@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <attr name="editTextBackgroundColor" format="color" />
+    <attr name="iconColor" format="color" />
 
 </resources>
