@@ -7,25 +7,36 @@ import android.widget.EditText
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import android.widget.Button
+import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.playlistmaker.api.ApiService
+import com.example.playlistmaker.api.SearchResponse
 import com.google.android.material.appbar.MaterialToolbar
-import model.MockData
+import model.Track
 import model.TrackAdapter
-
+import retrofit2.Call
+import retrofit2.Response
+import retrofit2.Callback
 
 class SearchActivity : AppCompatActivity() {
 
     private lateinit var inputEditText: EditText
     private lateinit var clearButton: ImageView
-
+    private lateinit var placeholderMessage: TextView
+    private lateinit var placeholderNoInternetContainer: View
+    private lateinit var refreshButton: Button
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: TrackAdapter
-    private val mockTracks = MockData.getMockTracks()
+
+    private val tracks = ArrayList<Track>()
+    private var lastSearchQuery: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,14 +50,21 @@ class SearchActivity : AppCompatActivity() {
 
         inputEditText = findViewById(R.id.inputEditText)
         clearButton = findViewById(R.id.clearIcon)
-
+        placeholderMessage = findViewById(R.id.placeholderMessage)
+        placeholderNoInternetContainer = findViewById(R.id.placeholderNoInternetContainer)
+        refreshButton = findViewById(R.id.refreshButton)
+        recyclerView = findViewById(R.id.trackList)
 
         setupBackToolbar()
         setupInputEditText()
         setupTextWatcher()
         setupClearButton()
-
         setupRecyclerView()
+        setupOnEditorActionListener()
+        setupRefreshButton()
+
+        // Показываем начальное состояние
+        showInitialState()
     }
 
     private fun setupBackToolbar() {
@@ -65,21 +83,17 @@ class SearchActivity : AppCompatActivity() {
 
     private fun setupTextWatcher() {
         val textWatcher = object : TextWatcher {
-            override fun beforeTextChanged(
-                s: CharSequence?,
-                start: Int,
-                count: Int,
-                after: Int
-            ) {
-
-            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 updateClearButtonVisibility(s)
+                // Если поле пустое, показываем начальное состояние
+                if (s.isNullOrEmpty()) {
+                    showInitialState()
+                }
             }
 
-            override fun afterTextChanged(s: Editable?) {
-            }
+            override fun afterTextChanged(s: Editable?) {}
         }
 
         inputEditText.addTextChangedListener(textWatcher)
@@ -89,6 +103,7 @@ class SearchActivity : AppCompatActivity() {
         clearButton.setOnClickListener {
             inputEditText.setText("")
             hideKeyboard()
+            showInitialState()
         }
     }
 
@@ -128,16 +143,108 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerView() {
-        val includedView = findViewById<View>(R.id.trackList)
-        recyclerView = includedView.findViewById(R.id.trackList)
-        adapter = TrackAdapter(mockTracks)
-        // НАСТРАИВАЕМ RecyclerView
+        adapter = TrackAdapter(tracks)
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = adapter
         recyclerView.setHasFixedSize(true)
-
-
     }
 
+    private fun setupOnEditorActionListener() {
+        inputEditText.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_SEARCH) {
+                val searchText = inputEditText.text.toString().trim()
+                if (searchText.isNotEmpty()) {
+                    performSearch(searchText)
+                }
+                true
+            } else {
+                false
+            }
+        }
+    }
 
+    private fun setupRefreshButton() {
+        refreshButton.setOnClickListener {
+            if (lastSearchQuery.isNotEmpty()) {
+                performSearch(lastSearchQuery)
+            }
+        }
+    }
+
+    private fun performSearch(searchQuery: String) {
+        lastSearchQuery = searchQuery
+        hideKeyboard()
+
+        ApiService.retrofit.search(searchQuery)
+            .enqueue(object : Callback<SearchResponse> {
+                override fun onResponse(
+                    call: Call<SearchResponse>,
+                    response: Response<SearchResponse>
+                ) {
+                    if (response.isSuccessful) {
+                        val searchResults = response.body()?.results ?: emptyList()
+
+                        if (searchResults.isNotEmpty()) {
+                            // Показываем результаты
+                            tracks.clear()
+                            tracks.addAll(searchResults)
+                            adapter.notifyDataSetChanged()
+                            showResultsState()
+                        } else {
+                            // Нет результатов
+                            showNoResultsState()
+                        }
+                    } else {
+                        // Ошибка сервера
+                        showErrorState(getString(R.string.server_error))
+                        showErrorState(getString(R.string.server_error_1))
+                    }
+                }
+
+                override fun onFailure(call: Call<SearchResponse>, t: Throwable) {
+                    // Ошибка сети
+                    showErrorState(getString(R.string.network_error))
+                }
+            })
+    }
+
+    // Методы для управления состояниями UI
+    private fun showInitialState() {
+        tracks.clear()
+        adapter.notifyDataSetChanged()
+
+        recyclerView.visibility = View.GONE
+        placeholderMessage.visibility = View.GONE
+        placeholderNoInternetContainer.visibility = View.GONE
+    }
+
+    private fun showResultsState() {
+        recyclerView.visibility = View.VISIBLE
+        placeholderMessage.visibility = View.GONE
+        placeholderNoInternetContainer.visibility = View.GONE
+    }
+
+    private fun showNoResultsState() {
+        tracks.clear()
+        adapter.notifyDataSetChanged()
+
+        recyclerView.visibility = View.GONE
+        placeholderMessage.visibility = View.VISIBLE
+        placeholderNoInternetContainer.visibility = View.GONE
+
+        placeholderMessage.text = getString(R.string.no_results)
+    }
+
+    private fun showErrorState(errorMessage: String) {
+        tracks.clear()
+        adapter.notifyDataSetChanged()
+
+        recyclerView.visibility = View.GONE
+        placeholderMessage.visibility = View.GONE
+        placeholderNoInternetContainer.visibility = View.VISIBLE
+
+        // Обновляем текст ошибки если нужно
+        val errorTextView = findViewById<TextView>(R.id.placeholderNoInternet)
+        errorTextView.text = errorMessage
+    }
 }
