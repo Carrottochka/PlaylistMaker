@@ -1,4 +1,4 @@
-package model
+package com.example.playlistmaker.model
 
 class MockData {
     companion object {

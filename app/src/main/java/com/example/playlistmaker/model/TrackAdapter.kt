@@ -1,8 +1,8 @@
-package model
+package com.example.playlistmaker.model
 
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-
+import java.util.Locale
 
 
 class TrackAdapter(
@@ -15,7 +15,10 @@ class TrackAdapter(
     }
 
     override fun onBindViewHolder(holder: TrackViewHolder, position: Int) {
+
         holder.bind(tracks[position])
+        val track = tracks[position]
+
 
     }
 

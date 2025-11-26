@@ -1,6 +1,6 @@
 package com.example.playlistmaker.api
 
-import model.Track
+import com.example.playlistmaker.model.Track
 
 //класс для параметров запроса
 data class SearchResponse(

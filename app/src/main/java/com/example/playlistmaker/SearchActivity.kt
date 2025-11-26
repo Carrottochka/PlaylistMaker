@@ -19,8 +19,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.playlistmaker.api.ApiService
 import com.example.playlistmaker.api.SearchResponse
 import com.google.android.material.appbar.MaterialToolbar
-import model.Track
-import model.TrackAdapter
+import com.example.playlistmaker.model.Track
+import com.example.playlistmaker.model.TrackAdapter
 import retrofit2.Call
 import retrofit2.Response
 import retrofit2.Callback
@@ -63,7 +63,6 @@ class SearchActivity : AppCompatActivity() {
         setupOnEditorActionListener()
         setupRefreshButton()
 
-        // Показываем начальное состояние
         showInitialState()
     }
 

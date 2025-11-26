@@ -1,4 +1,4 @@
-package model
+package com.example.playlistmaker.model
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -9,6 +9,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.example.playlistmaker.R
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class TrackViewHolder(
     parent: ViewGroup
@@ -21,14 +23,16 @@ class TrackViewHolder(
     private val tvArtistName: TextView = itemView.findViewById(R.id.artistName)
     private val tvTrackTime: TextView = itemView.findViewById(R.id.trackTime)
 
-    fun Int.dpToPx(context: Context): Int {
+    private fun Int.dpToPx(context: Context): Int {
         return (this * context.resources.displayMetrics.density).toInt()
     }
 
     fun bind(track: Track) {
         tvTrackName.text = track.trackName
         tvArtistName.text = track.artistName
-        tvTrackTime.text = track.trackTime
+
+        val timeMillis = track.trackTime?.toLongOrNull()
+        tvTrackTime.text = formatTime(timeMillis)
 
         val radiusInPx = 2.dpToPx(itemView.context)
 
@@ -39,6 +43,11 @@ class TrackViewHolder(
             .transform(RoundedCorners(radiusInPx))
             .into(ivArtwork)
 
+    }
+
+    private fun formatTime(millis: Long?): String {
+        if (millis == null) return "--:--"
+        return SimpleDateFormat("mm:ss", Locale.getDefault()).format(millis)
     }
 
 
