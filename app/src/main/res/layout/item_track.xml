@@ -60,7 +60,7 @@
                     android:textColor="?attr/colorControlNormal"
                     android:textSize="11sp"
                     tools:text="Artist Name loooooooooooooooooooooooooooooooooooooooooong"
-                    android:maxLength="35"/>
+                    android:layout_weight="1"/>
 
                 <ImageView
                     android:id="@+id/dot"
