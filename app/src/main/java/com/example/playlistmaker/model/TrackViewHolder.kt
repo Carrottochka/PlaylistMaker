@@ -30,9 +30,10 @@ class TrackViewHolder(
     fun bind(track: Track) {
         tvTrackName.text = track.trackName
         tvArtistName.text = track.artistName
+        println("DEBUG: FULL TRACK = $track")
 
-        val timeMillis = track.trackTime?.toLongOrNull()
-        tvTrackTime.text = formatTime(timeMillis)
+
+        tvTrackTime.text = formatTrackTime(track.trackTimeMillis)
 
         val radiusInPx = 2.dpToPx(itemView.context)
 
@@ -45,10 +46,36 @@ class TrackViewHolder(
 
     }
 
-    private fun formatTime(millis: Long?): String {
-        if (millis == null) return "--:--"
-        return SimpleDateFormat("mm:ss", Locale.getDefault()).format(millis)
-    }
+    private fun formatTrackTime(trackTimeMillis: String?): String {
+        println("DEBUG: formatTrackTime input = '$trackTimeMillis'")
 
+        if (trackTimeMillis.isNullOrEmpty()) {
+            println("DEBUG: trackTime is null or empty")
+            return "--:--"
+        }
+
+        return try {
+            println("DEBUG: trying to parse '$trackTimeMillis' as Long")
+
+            val timeValue = trackTimeMillis.toLong()
+            println("DEBUG: successfully parsed as Long = $timeValue")
+
+            // В iTunes API время приходит в миллисекундах
+            val totalSeconds = timeValue / 1000
+            val minutes = totalSeconds / 60
+            val seconds = totalSeconds % 60
+
+            val result = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
+            println("DEBUG: formatted result = $result")
+            result
+
+        } catch (e: NumberFormatException) {
+            println("DEBUG: NumberFormatException - cannot parse '$trackTimeMillis' as Long")
+            "--:--"
+        } catch (e: Exception) {
+            println("DEBUG: other exception = ${e.message}")
+            "--:--"
+        }
+    }
 
 }

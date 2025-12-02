@@ -1,5 +1,6 @@
 package com.example.playlistmaker.model
 
+import android.util.Log
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import java.util.Locale
@@ -18,6 +19,9 @@ class TrackAdapter(
 
         holder.bind(tracks[position])
         val track = tracks[position]
+        Log.d("ADAPTER_DEBUG", "Binding track $position: ${track.trackName}")
+        Log.d("ADAPTER_DEBUG", "Track time: '${track.trackTimeMillis}'")
+
 
 
     }

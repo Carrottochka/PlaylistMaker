@@ -30,6 +30,9 @@
         <item name="android:textColor">@color/YP_black</item>
     </style>
 
+    <style name="forwardSearch" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="tint">@color/YP_white</item>
+    </style>
     <!-- <item name="colorSurface">@color/YP_dark_gray</item>-->
 
 

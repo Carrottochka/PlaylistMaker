@@ -10,17 +10,16 @@
     tools:context=".MainActivity">
 
     <!-- Заголовок -->
+
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbarBack"
-        style="@style/CustomToolbarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:title="@string/button1"
+        android:paddingTop="16dp"
         app:navigationIcon="@drawable/ic_arrow_back_24"
-        app:navigationIconTint="?attr/colorControlNormal">
-
-    </com.google.android.material.appbar.MaterialToolbar>
+        app:title="@string/button_search"
+        style="@style/CustomToolbarStyle"
+        app:navigationIconTint="?attr/colorControlNormal"/>
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -30,7 +29,7 @@
             android:id="@+id/inputEditText"
             style="@style/text_setting_second_display"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="36dp"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
             android:background="@drawable/rounded_textview"
@@ -124,7 +123,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:contentDescription="@string/trackList"
-            android:visibility="gone" />
+            android:visibility="visible" />
 
     </FrameLayout>
 

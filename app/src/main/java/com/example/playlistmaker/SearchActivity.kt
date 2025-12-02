@@ -3,6 +3,7 @@ package com.example.playlistmaker
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.widget.EditText
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
@@ -18,6 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.playlistmaker.api.ApiService
 import com.example.playlistmaker.api.SearchResponse
+import com.example.playlistmaker.model.MockData
 import com.google.android.material.appbar.MaterialToolbar
 import com.example.playlistmaker.model.Track
 import com.example.playlistmaker.model.TrackAdapter
@@ -36,6 +38,8 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var adapter: TrackAdapter
 
     private val tracks = ArrayList<Track>()
+
+    //private val tracks = MockData.getMockTracks()
     private var lastSearchQuery: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,6 +51,9 @@ class SearchActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        Log.d("SEARCH_DEBUG", "=== SEARCH ACTIVITY CREATED ===")
+        Log.d("ADAPTER_DEBUG", "Adapter initialized: ${::adapter.isInitialized}")
+        Log.d("ADAPTER_DEBUG", "RecyclerView initialized: ${::recyclerView.isInitialized}")
 
         inputEditText = findViewById(R.id.inputEditText)
         clearButton = findViewById(R.id.clearIcon)
@@ -84,9 +91,9 @@ class SearchActivity : AppCompatActivity() {
         val textWatcher = object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
+
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 updateClearButtonVisibility(s)
-                // Если поле пустое, показываем начальное состояние
                 if (s.isNullOrEmpty()) {
                     showInitialState()
                 }
@@ -142,10 +149,14 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerView() {
+        Log.d("ADAPTER_DEBUG", "=== SETUP RECYCLERVIEW ===")
+
         adapter = TrackAdapter(tracks)
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = adapter
         recyclerView.setHasFixedSize(true)
+        Log.d("ADAPTER_DEBUG", "RecyclerView setup completed")
+        Log.d("ADAPTER_DEBUG", "Initial tracks count: ${tracks.size}")
     }
 
     private fun setupOnEditorActionListener() {
@@ -174,27 +185,49 @@ class SearchActivity : AppCompatActivity() {
         lastSearchQuery = searchQuery
         hideKeyboard()
 
+        Log.d("SEARCH_DEBUG", "=== SEARCH STARTED ===")
+        Log.d("SEARCH_DEBUG", "Search query: '$searchQuery'")
+
         ApiService.retrofit.search(searchQuery)
             .enqueue(object : Callback<SearchResponse> {
                 override fun onResponse(
                     call: Call<SearchResponse>,
                     response: Response<SearchResponse>
                 ) {
+
+                    Log.d("SEARCH_DEBUG", "=== SEARCH RESPONSE ===")
+                    Log.d("SEARCH_DEBUG", "Response isSuccessful: ${response.isSuccessful}")
+                    Log.d("SEARCH_DEBUG", "Response code: ${response.code()}")
                     if (response.isSuccessful) {
+
                         val searchResults = response.body()?.results ?: emptyList()
 
+                        Log.d("SEARCH_DEBUG", "Results count: ${searchResults.size}")
+
                         if (searchResults.isNotEmpty()) {
-                            // Показываем результаты
+
+                            val firstTrack = searchResults.first()
+                            Log.d("SEARCH_DEBUG", "First track: ${firstTrack.trackName}")
+                            Log.d(
+                                "SEARCH_DEBUG",
+                                "First track time: '${firstTrack.trackTimeMillis}'"
+                            )
+                            Log.d("SEARCH_DEBUG", "First track artist: ${firstTrack.artistName}")
+
                             tracks.clear()
                             tracks.addAll(searchResults)
                             adapter.notifyDataSetChanged()
                             showResultsState()
+
+                            Log.d("SEARCH_DEBUG", "Showing results state")
                         } else {
                             // Нет результатов
+                            Log.d("SEARCH_DEBUG", "No results found")
                             showNoResultsState()
                         }
                     } else {
                         // Ошибка сервера
+                        Log.d("SEARCH_DEBUG", "Server error: ${response.code()}")
                         showErrorState(getString(R.string.server_error))
                         showErrorState(getString(R.string.server_error_1))
                     }
@@ -207,7 +240,7 @@ class SearchActivity : AppCompatActivity() {
             })
     }
 
-    // Методы для управления состояниями UI
+
     private fun showInitialState() {
         tracks.clear()
         adapter.notifyDataSetChanged()
@@ -242,7 +275,7 @@ class SearchActivity : AppCompatActivity() {
         placeholderMessage.visibility = View.GONE
         placeholderNoInternetContainer.visibility = View.VISIBLE
 
-        // Обновляем текст ошибки если нужно
+
         val errorTextView = findViewById<TextView>(R.id.placeholderNoInternet)
         errorTextView.text = errorMessage
     }
