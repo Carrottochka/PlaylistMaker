@@ -44,7 +44,8 @@
             android:maxLines="1"
             android:padding="8dp"
             android:singleLine="true"
-            android:textColorHint="?attr/iconColor" />
+            android:textColorHint="?attr/iconColor"
+            />
 
         <ImageView
             android:id="@+id/clearIcon"
@@ -120,6 +121,7 @@
         <!-- RecyclerView для результатов -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/trackList"
+            android:layout_marginTop="16dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:contentDescription="@string/trackList"

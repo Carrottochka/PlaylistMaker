@@ -59,8 +59,8 @@
                     android:singleLine="true"
                     android:textColor="?attr/colorControlNormal"
                     android:textSize="11sp"
-                    android:maxLength="255"
-                    tools:text="Artist Name looooooooooong" />
+                    tools:text="Artist Name loooooooooooooooooooooooooooooooooooooooooong"
+                    android:maxLength="35"/>
 
                 <ImageView
                     android:id="@+id/dot"
