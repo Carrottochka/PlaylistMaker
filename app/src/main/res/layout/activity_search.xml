@@ -10,42 +10,43 @@
     tools:context=".MainActivity">
 
     <!-- Заголовок -->
+
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbarBack"
-        style="@style/CustomToolbarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
+        android:paddingTop="16dp"
         app:navigationIcon="@drawable/ic_arrow_back_24"
-        app:navigationIconTint="?attr/colorControlNormal"
-        android:title="@string/button1">
-
-    </com.google.android.material.appbar.MaterialToolbar>
+        app:title="@string/button_search"
+        style="@style/CustomToolbarStyle"
+        app:navigationIconTint="?attr/colorControlNormal"/>
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-
-        >
+        android:layout_marginTop="8dp">
 
         <EditText
             android:id="@+id/inputEditText"
             style="@style/text_setting_second_display"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="36dp"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
             android:background="@drawable/rounded_textview"
             android:drawableStart="@drawable/ic_search_icon_16"
-            android:drawableTint="?attr/iconColor"
             android:drawablePadding="8dp"
+            android:drawableTint="?attr/iconColor"
             android:focusable="true"
             android:focusableInTouchMode="true"
             android:hint="@string/button1"
-            android:textColorHint="?attr/iconColor"
+            android:imeOptions="actionDone"
             android:inputType="text"
             android:maxLines="1"
-            android:padding="8dp" />
+            android:padding="8dp"
+            android:singleLine="true"
+            android:textColorHint="?attr/iconColor"
+            />
 
         <ImageView
             android:id="@+id/clearIcon"
@@ -54,15 +55,79 @@
             android:layout_gravity="center|end"
             android:layout_marginEnd="24dp"
             android:src="@drawable/ic_clear_12"
-            app:tint="?attr/iconColor"
-            android:visibility="gone" />
+            android:visibility="gone"
+            app:tint="?attr/iconColor" />
+
     </FrameLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/trackList"
+    <!-- Контейнер для состояний (плейсхолдеры) -->
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:contentDescription="@string/trackList"
-        xmlns:android="http://schemas.android.com/apk/res/android" />
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <!-- Плейсхолдер "нет результатов" -->
+        <TextView
+            android:id="@+id/placeholderMessage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableTop="@drawable/errors_no_found_placeholder_120"
+            android:fontFamily="@font/ys_display_medium"
+            android:gravity="center"
+            android:paddingTop="102dp"
+            android:text="@string/no_results"
+            android:textSize="19sp"
+            android:visibility="gone" />
+
+        <!-- Плейсхолдер "нет интернета" с кнопкой -->
+        <LinearLayout
+            android:id="@+id/placeholderNoInternetContainer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="102dp"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/placeholderNoInternet"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableTop="@drawable/errors_no_internet_120"
+                android:fontFamily="@font/ys_display_medium"
+                android:gravity="center"
+                android:text="@string/server_error"
+                android:textSize="19sp" />
+
+            <TextView
+
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/ys_display_medium"
+                android:gravity="center"
+                android:padding="24dp"
+                android:text="@string/server_error_1"
+                android:textSize="19sp" />
+
+            <Button
+                android:id="@+id/refreshButton"
+                style="@style/InverseButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/refresh_Button" />
+
+        </LinearLayout>
+
+        <!-- RecyclerView для результатов -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/trackList"
+            android:layout_marginTop="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/trackList"
+            android:visibility="visible" />
+
+    </FrameLayout>
 
 </LinearLayout>
