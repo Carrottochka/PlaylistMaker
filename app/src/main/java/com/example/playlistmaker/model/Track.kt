@@ -1,10 +1,9 @@
 package com.example.playlistmaker.model
 
 data class Track(
-    val trackId:Long,
     val trackName:String,
     val artistName:String,
-    val trackTimeMillis: String?,
-    val artworkUrl100: String
+    val trackTimeMillis: String?, // Продолжительность трека
+    val artworkUrl100: String // Ссылка на изображение обложки
     )
 

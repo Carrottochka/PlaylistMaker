@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.playlistmaker.api.ApiService
 import com.example.playlistmaker.api.SearchResponse
+import com.example.playlistmaker.model.MockData
 import com.google.android.material.appbar.MaterialToolbar
 import com.example.playlistmaker.model.Track
 import com.example.playlistmaker.model.TrackAdapter
@@ -34,17 +35,12 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var placeholderNoInternetContainer: View
     private lateinit var refreshButton: Button
     private lateinit var recyclerView: RecyclerView
-    private lateinit var historyRecyclerView: RecyclerView
-    private lateinit var historyContainer: View
-    private lateinit var clearHistoryButton: Button
     private lateinit var adapter: TrackAdapter
-    private lateinit var historyAdapter: TrackAdapter
 
-    private val tracks = ArrayList<Track>() // результаты поиска
+    private val tracks = ArrayList<Track>()
+
+    //private val tracks = MockData.getMockTracks()
     private var lastSearchQuery: String = ""
-
-
-    private lateinit var searchHistory: SearchHistory
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,9 +51,9 @@ class SearchActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
         Log.d("SEARCH_DEBUG", "=== SEARCH ACTIVITY CREATED ===")
-
+        Log.d("ADAPTER_DEBUG", "Adapter initialized: ${::adapter.isInitialized}")
+        Log.d("ADAPTER_DEBUG", "RecyclerView initialized: ${::recyclerView.isInitialized}")
 
         inputEditText = findViewById(R.id.inputEditText)
         clearButton = findViewById(R.id.clearIcon)
@@ -66,27 +62,15 @@ class SearchActivity : AppCompatActivity() {
         refreshButton = findViewById(R.id.refreshButton)
         recyclerView = findViewById(R.id.trackList)
 
-
-        historyContainer = findViewById(R.id.historyContainer)
-        historyRecyclerView = findViewById(R.id.historyRecyclerView)
-        clearHistoryButton = findViewById(R.id.clearHistoryButton)
-
-
-        searchHistory = SearchHistory(this)
-
         setupBackToolbar()
         setupInputEditText()
         setupTextWatcher()
         setupClearButton()
-        setupRecyclerViews() //  настраиваем оба RecyclerView
+        setupRecyclerView()
         setupOnEditorActionListener()
         setupRefreshButton()
-        setupClearHistoryButton()
-
-        setupFocusListener()
 
         showInitialState()
-        updateHistoryVisibility()
     }
 
     private fun setupBackToolbar() {
@@ -100,15 +84,6 @@ class SearchActivity : AppCompatActivity() {
         inputEditText.setOnClickListener {
             inputEditText.requestFocus()
             showKeyboard()
-            // При клике на поле ввода обновляю видимость истории
-            updateHistoryVisibility()
-        }
-    }
-
-    private fun setupFocusListener() {
-        inputEditText.setOnFocusChangeListener { _, hasFocus ->
-            // При изменении фокуса обновляю видимость истории
-            updateHistoryVisibility()
         }
     }
 
@@ -116,14 +91,11 @@ class SearchActivity : AppCompatActivity() {
         val textWatcher = object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
+
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 updateClearButtonVisibility(s)
                 if (s.isNullOrEmpty()) {
-
-                    updateHistoryVisibility()
-                } else {
-
-                    hideHistory()
+                    showInitialState()
                 }
             }
 
@@ -136,9 +108,8 @@ class SearchActivity : AppCompatActivity() {
     private fun setupClearButton() {
         clearButton.setOnClickListener {
             inputEditText.setText("")
-            inputEditText.requestFocus()
             hideKeyboard()
-            updateHistoryVisibility()
+            showInitialState()
         }
     }
 
@@ -160,31 +131,32 @@ class SearchActivity : AppCompatActivity() {
         imm.hideSoftInputFromWindow(inputEditText.windowToken, 0)
     }
 
+    private var userSearch: String = SEARCH_DEF
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString(SEARCH_KEY, userSearch)
+    }
 
-    private fun setupRecyclerViews() {
-        Log.d("ADAPTER_DEBUG", "=== SETUP RECYCLERVIEWS ===")
+    companion object {
+        const val SEARCH_KEY = "SEARCH_KEY"
+        const val SEARCH_DEF = ""
+    }
 
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        userSearch = savedInstanceState.getString(SEARCH_KEY, SEARCH_DEF)
+        inputEditText.setText(userSearch)
+    }
 
-        adapter = TrackAdapter(tracks) { track ->
-            onTrackClicked(track)
-        }
+    private fun setupRecyclerView() {
+        Log.d("ADAPTER_DEBUG", "=== SETUP RECYCLERVIEW ===")
 
-
-        historyAdapter = TrackAdapter(ArrayList()) { track ->
-            onTrackClicked(track)
-        }
-
-        // Настройка RecyclerView для результатов поиска
+        adapter = TrackAdapter(tracks)
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = adapter
         recyclerView.setHasFixedSize(true)
-
-        // Настройка RecyclerView для истории поиска
-        historyRecyclerView.layoutManager = LinearLayoutManager(this)
-        historyRecyclerView.adapter = historyAdapter
-        historyRecyclerView.setHasFixedSize(true)
-
-        Log.d("ADAPTER_DEBUG", "RecyclerViews setup completed")
+        Log.d("ADAPTER_DEBUG", "RecyclerView setup completed")
+        Log.d("ADAPTER_DEBUG", "Initial tracks count: ${tracks.size}")
     }
 
     private fun setupOnEditorActionListener() {
@@ -209,26 +181,9 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupClearHistoryButton() {
-        clearHistoryButton.setOnClickListener {
-            searchHistory.clearHistory()
-            updateHistoryVisibility()
-        }
-    }
-
-
-    private fun onTrackClicked(track: Track) {
-        searchHistory.addTrack(track)
-        updateHistoryVisibility()
-
-        // TODO: Здесь будет переход на экран плеера
-        Log.d("SEARCH_DEBUG", "Track clicked: ${track.trackName}")
-    }
-
     private fun performSearch(searchQuery: String) {
         lastSearchQuery = searchQuery
         hideKeyboard()
-        hideHistory()
 
         Log.d("SEARCH_DEBUG", "=== SEARCH STARTED ===")
         Log.d("SEARCH_DEBUG", "Search query: '$searchQuery'")
@@ -274,6 +229,7 @@ class SearchActivity : AppCompatActivity() {
                         // Ошибка сервера
                         Log.d("SEARCH_DEBUG", "Server error: ${response.code()}")
                         showErrorState(getString(R.string.server_error))
+                        showErrorState(getString(R.string.server_error_1))
                     }
                 }
 
@@ -285,40 +241,6 @@ class SearchActivity : AppCompatActivity() {
     }
 
 
-    private fun updateHistoryVisibility() {
-        val hasFocus = inputEditText.hasFocus()
-        val isEmpty = inputEditText.text.isNullOrEmpty()
-        val hasHistory = searchHistory.hasHistory()
-
-
-        val shouldShowHistory = hasFocus && isEmpty && hasHistory
-
-        if (shouldShowHistory) {
-            showHistoryState()
-        } else {
-            hideHistory()
-        }
-    }
-
-
-    private fun showHistoryState() {
-
-        val historyTracks = searchHistory.getHistory()
-        historyAdapter.updateTracks(ArrayList(historyTracks))
-        historyContainer.visibility = View.VISIBLE
-
-
-        recyclerView.visibility = View.GONE
-        placeholderMessage.visibility = View.GONE
-        placeholderNoInternetContainer.visibility = View.GONE
-    }
-
-
-    private fun hideHistory() {
-        historyContainer.visibility = View.GONE
-    }
-
-
     private fun showInitialState() {
         tracks.clear()
         adapter.notifyDataSetChanged()
@@ -326,14 +248,12 @@ class SearchActivity : AppCompatActivity() {
         recyclerView.visibility = View.GONE
         placeholderMessage.visibility = View.GONE
         placeholderNoInternetContainer.visibility = View.GONE
-
     }
 
     private fun showResultsState() {
         recyclerView.visibility = View.VISIBLE
         placeholderMessage.visibility = View.GONE
         placeholderNoInternetContainer.visibility = View.GONE
-        historyContainer.visibility = View.GONE
     }
 
     private fun showNoResultsState() {
@@ -343,7 +263,6 @@ class SearchActivity : AppCompatActivity() {
         recyclerView.visibility = View.GONE
         placeholderMessage.visibility = View.VISIBLE
         placeholderNoInternetContainer.visibility = View.GONE
-        historyContainer.visibility = View.GONE
 
         placeholderMessage.text = getString(R.string.no_results)
     }
@@ -355,33 +274,9 @@ class SearchActivity : AppCompatActivity() {
         recyclerView.visibility = View.GONE
         placeholderMessage.visibility = View.GONE
         placeholderNoInternetContainer.visibility = View.VISIBLE
-        historyContainer.visibility = View.GONE
+
 
         val errorTextView = findViewById<TextView>(R.id.placeholderNoInternet)
         errorTextView.text = errorMessage
-    }
-
-    // Добавляю обновление истории при возобновлении активности
-    override fun onResume() {
-        super.onResume()
-        updateHistoryVisibility()
-    }
-
-    private var userSearch: String = SEARCH_DEF
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putString(SEARCH_KEY, userSearch)
-    }
-
-    companion object {
-        const val SEARCH_KEY = "SEARCH_KEY"
-        const val SEARCH_DEF = ""
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-        userSearch = savedInstanceState.getString(SEARCH_KEY, SEARCH_DEF)
-        inputEditText.setText(userSearch)
-        updateHistoryVisibility()
     }
 }

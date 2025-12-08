@@ -28,9 +28,6 @@ class TrackViewHolder(
     }
 
     fun bind(track: Track) {
-
-
-
         tvTrackName.text = track.trackName
         tvArtistName.text = track.artistName
         println("DEBUG: FULL TRACK = $track")
@@ -80,10 +77,5 @@ class TrackViewHolder(
             "--:--"
         }
     }
-    fun clearTexts() {
-        // Очищаем все текстовые поля,уезжает точка
-        tvTrackName.text = ""
-        tvArtistName.text = ""
-        tvTrackTime.text = ""
-    }
+
 }
