@@ -9,11 +9,7 @@ import com.google.gson.reflect.TypeToken
 
 class SearchHistory(private val context: Context) {
 
-    companion object {
-        private const val HISTORY_PREFS = "search_history"
-        private const val HISTORY_KEY = "history_tracks"
-        private const val MAX_HISTORY_SIZE = 10
-    }
+
 
     private val gson = Gson()
 
@@ -59,5 +55,10 @@ class SearchHistory(private val context: Context) {
         sharedPreferences.edit()
             .putString(HISTORY_KEY, json)
             .apply()
+    }
+    companion object {
+        private const val HISTORY_PREFS = "search_history"
+        private const val HISTORY_KEY = "history_tracks"
+        private const val MAX_HISTORY_SIZE = 10
     }
 }
