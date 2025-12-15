@@ -34,4 +34,10 @@
     <string name="search_history_title">Вы искали</string>
     <string name="clear_history">Очистить историю</string>
 
+    <string name="duration">Длительность</string>
+    <string name="collection">Альбом</string>
+    <string name="release">Год</string>
+    <string name="genre">Жанр</string>
+    <string name="country">Страна</string>
+
 </resources>
