@@ -43,6 +43,13 @@
         <item name="iconTint">?attr/editTextBackgroundColor</item>
     </style>
 
+    <style name="start_text_on_player_display">
+        <item name="android:fontFamily">@font/ys_display_regular</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:textColor">@color/YP_gray</item>
+
+    </style>
+
 
 
 
