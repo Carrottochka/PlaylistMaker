@@ -49,6 +49,23 @@
         <item name="android:textColor">@color/YP_gray</item>
 
     </style>
+    <style name="MetadataLabel">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">16dp</item>
+        <item name="android:layout_marginTop">17dp</item>
+        <item name="android:fontFamily">@font/ys_display_regular</item>
+        <item name="android:textColor">@color/YP_gray</item>
+        <item name="android:textSize">13sp</item>
+    </style>
+
+    <style name="MetadataValue">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">16dp</item>
+        <item name="android:layout_marginEnd">16dp</item>
+        <item name="android:textSize">13sp</item>
+    </style>
 
 
 

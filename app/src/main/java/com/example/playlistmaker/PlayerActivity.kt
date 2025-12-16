@@ -1,7 +1,7 @@
 package com.example.playlistmaker
 
 import android.os.Bundle
-import android.util.Log
+import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
@@ -29,174 +29,84 @@ class PlayerActivity : AppCompatActivity() {
             insets
         }
 
-        Log.d("PLAYER_DEBUG", "=== PLAYER ACTIVITY CREATED ===")
-
-        // Проверяю intent
-        if (intent == null) {
-            Log.e("PLAYER_DEBUG", "Intent is null!")
-            finish()
-            return
-        }
-
-        // Проверяю extras
-        val extras = intent.extras
-        if (extras == null) {
-            Log.e("PLAYER_DEBUG", "Intent extras are null!")
-            finish()
-            return
-        }
-
-        Log.d("PLAYER_DEBUG", "Intent extras keys: ${extras.keySet()}")
-        Log.d("PLAYER_DEBUG", "Has TRACK_EXTRA: ${intent.hasExtra(TRACK_EXTRA)}")
-
         parseTrackFromIntent()
-
         setupBackButton()
-
 
         if (track != null) {
             displayTrackInfo()
-        } else {
-            Log.e("PLAYER_DEBUG", "Track is null, cannot display info")
-            showErrorMessage()
         }
     }
 
     private fun parseTrackFromIntent() {
-        try {
-            Log.d("PLAYER_DEBUG", "Parsing track from intent...")
-
-            val trackJson = intent.getStringExtra(TRACK_EXTRA)
-
-            if (trackJson.isNullOrEmpty()) {
-                Log.e("PLAYER_DEBUG", "Track JSON is null or empty!")
-                Log.d("PLAYER_DEBUG", "JSON value: '$trackJson'")
-                return
-            }
-
-            Log.d("PLAYER_DEBUG", "JSON length: ${trackJson.length}")
-            Log.d("PLAYER_DEBUG", "JSON (first 200 chars): ${trackJson.take(200)}...")
-
-
-            track = gson.fromJson(trackJson, Track::class.java)
-
-            if (track != null) {
-                Log.d("PLAYER_DEBUG", "=== TRACK PARSED SUCCESSFULLY ===")
-                Log.d("PLAYER_DEBUG", "Track name: ${track?.trackName}")
-                Log.d("PLAYER_DEBUG", "Artist: ${track?.artistName}")
-                Log.d("PLAYER_DEBUG", "Album: ${track?.collectionName}")
-                Log.d("PLAYER_DEBUG", "Duration: ${track?.trackTimeMillis}")
-                Log.d("PLAYER_DEBUG", "Artwork URL: ${track?.artworkUrl100}")
-                Log.d("PLAYER_DEBUG", "Release date: ${track?.releaseDate}")
-                Log.d("PLAYER_DEBUG", "Genre: ${track?.primaryGenreName}")
-                Log.d("PLAYER_DEBUG", "Country: ${track?.country}")
-            } else {
-                Log.e("PLAYER_DEBUG", "Failed to parse track from JSON")
-            }
-
-        } catch (e: Exception) {
-            Log.e("PLAYER_DEBUG", "Error parsing track: ${e.message}", e)
-            track = null
-        }
+        val trackJson = intent.getStringExtra(TRACK_EXTRA)
+        track = trackJson?.let { gson.fromJson(it, Track::class.java) }
     }
 
     private fun setupBackButton() {
-        val backButton = findViewById<ImageView>(R.id.backButton)
-        backButton.setOnClickListener {
-            finish()
-        }
+        findViewById<ImageView>(R.id.backButton).setOnClickListener { finish() }
     }
 
     private fun displayTrackInfo() {
-        val currentTrack = track ?: run {
-            Log.e("PLAYER_DEBUG", "Track is null in displayTrackInfo")
-            return
-        }
+        val currentTrack = track ?: return
 
-        Log.d("PLAYER_DEBUG", "=== DISPLAYING TRACK INFO ===")
+
+        findViewById<TextView>(R.id.trackTitle).text = currentTrack.trackName
+        findViewById<TextView>(R.id.artistName).text = currentTrack.artistName
+
 
         val albumCover = findViewById<ImageView>(R.id.albumCover)
-        val trackName = findViewById<TextView>(R.id.trackTitle)
-        val artistName = findViewById<TextView>(R.id.artistName)
-        val collectionName = findViewById<TextView>(R.id.collectionName)
-        val durationTime = findViewById<TextView>(R.id.durationTime)
-        val releaseDate = findViewById<TextView>(R.id.releaseDate)
-        val primaryGenreName = findViewById<TextView>(R.id.primaryGenreName)
-        val country = findViewById<TextView>(R.id.country)
-
-
-        trackName.text = currentTrack.trackName ?: "Без названия"
-        artistName.text = currentTrack.artistName ?: "Неизвестный исполнитель"
-        collectionName.text = currentTrack.collectionName ?: "Неизвестный альбом"
-
-        durationTime.text = formatTrackTime(currentTrack.trackTimeMillis)
-        releaseDate.text = formatReleaseDate(currentTrack.releaseDate)
-        primaryGenreName.text = currentTrack.primaryGenreName ?: "Неизвестно"
-        country.text = currentTrack.country ?: "Неизвестно"
-
-
-        val artworkUrl = currentTrack.artworkUrl100?.replace("100x100", "600x600")
-        artworkUrl?.let { url ->
-            Log.d("PLAYER_DEBUG", "Loading image from: $url")
+        currentTrack.artworkUrl100?.replace("100x100", "600x600")?.let { url ->
             Glide.with(this)
                 .load(url)
                 .placeholder(R.drawable.ic_placeholder_big)
                 .transform(RoundedCorners(8.dpToPx()))
                 .into(albumCover)
-        } ?: run {
-            Log.d("PLAYER_DEBUG", "No artwork URL, using placeholder")
-            albumCover.setImageResource(R.drawable.ic_placeholder_big)
+        } ?: albumCover.setImageResource(R.drawable.ic_placeholder_big)
+
+
+        setupMetadata(R.id.collectionName, currentTrack.collectionName)
+        setupMetadata(R.id.durationTime, formatTrackTime(currentTrack.trackTimeMillis))
+        setupMetadata(R.id.releaseDate, currentTrack.releaseDate?.takeIf { it.isNotEmpty() }?.substring(0, 4))
+        setupMetadata(R.id.primaryGenreName, currentTrack.primaryGenreName)
+        setupMetadata(R.id.country, currentTrack.country)
+    }
+
+    private fun setupMetadata(viewId: Int, value: String?) {
+        val metadataView = findViewById<TextView>(viewId)
+        val labelView = findLabelForMetadata(viewId)
+
+        if (!value.isNullOrEmpty()) {
+            metadataView.text = value
+            metadataView.visibility = View.VISIBLE
+            labelView?.visibility = View.VISIBLE
+        } else {
+            // Скрываем и метку, и значение
+            metadataView.visibility = View.GONE
+            labelView?.visibility = View.GONE
         }
     }
 
-    private fun showErrorMessage() {
-        val trackName = findViewById<TextView>(R.id.trackTitle)
-        trackName.text = "Ошибка загрузки трека"
+    private fun findLabelForMetadata(viewId: Int): TextView? {
+        return when (viewId) {
+            R.id.collectionName -> findViewById(R.id.collection)
+            R.id.durationTime -> findViewById(R.id.duration)
+            R.id.releaseDate -> findViewById(R.id.release)
+            R.id.primaryGenreName -> findViewById(R.id.primaryGenre)
+            R.id.country -> findViewById(R.id.countryTrack)
+            else -> null
+        }
     }
 
-    private fun formatTrackTime(trackTimeMillis: String?): String {
-        println("DEBUG: formatTrackTime input = '$trackTimeMillis'")
-
-        if (trackTimeMillis.isNullOrEmpty()) {
-            println("DEBUG: trackTime is null or empty")
-            return "--:--"
-        }
-
+    private fun formatTrackTime(trackTimeMillis: String?): String? {
         return try {
-            println("DEBUG: trying to parse '$trackTimeMillis' as Long")
-
-            val timeValue = trackTimeMillis.toLong()
-            println("DEBUG: successfully parsed as Long = $timeValue")
-
-            // В iTunes API время приходит в миллисекундах
-            val totalSeconds = timeValue / 1000
-            val minutes = totalSeconds / 60
-            val seconds = totalSeconds % 60
-
-            val result = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
-            println("DEBUG: formatted result = $result")
-            result
-
-        } catch (e: NumberFormatException) {
-            println("DEBUG: NumberFormatException - cannot parse '$trackTimeMillis' as Long")
-            "--:--"
+            trackTimeMillis?.toLong()?.let { timeValue ->
+                val totalSeconds = timeValue / 1000
+                val minutes = totalSeconds / 60
+                val seconds = totalSeconds % 60
+                String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
+            }
         } catch (e: Exception) {
-            println("DEBUG: other exception = ${e.message}")
-            "--:--"
-        }
-    }
-
-    private fun formatReleaseDate(releaseDate: String?): String {
-        return try {
-            releaseDate?.let { date ->
-                if (date.isNotEmpty() && date.length >= 4) {
-                    date.substring(0, 4)
-                } else {
-                    "Неизвестно"
-                }
-            } ?: "Неизвестно"
-        } catch (e: Exception) {
-            "Неизвестно"
+            null
         }
     }
 
