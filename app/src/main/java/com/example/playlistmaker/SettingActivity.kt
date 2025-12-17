@@ -37,7 +37,7 @@ class SettingActivity : AppCompatActivity() {
             finish()
         }
         setupShareButton()
-        setupContackSupport()
+        setupContactSupport()
         setupUserAgreement()
     }
 
@@ -54,7 +54,7 @@ class SettingActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupContackSupport() {
+    private fun setupContactSupport() {
         val contactSupport = findViewById<TextView>(R.id.contactSupport)
         contactSupport.setOnClickListener {
             val intentSupport = Intent(Intent.ACTION_SENDTO).apply {

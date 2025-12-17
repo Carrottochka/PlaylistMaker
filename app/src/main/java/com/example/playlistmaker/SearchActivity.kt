@@ -1,5 +1,6 @@
 package com.example.playlistmaker
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -22,6 +23,7 @@ import com.example.playlistmaker.api.SearchResponse
 import com.google.android.material.appbar.MaterialToolbar
 import com.example.playlistmaker.model.Track
 import com.example.playlistmaker.model.TrackAdapter
+import com.google.gson.Gson
 import retrofit2.Call
 import retrofit2.Response
 import retrofit2.Callback
@@ -45,6 +47,7 @@ class SearchActivity : AppCompatActivity() {
 
 
     private lateinit var searchHistory: SearchHistory
+    private val gson = Gson()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -222,7 +225,31 @@ class SearchActivity : AppCompatActivity() {
         updateHistoryVisibility()
 
         // TODO: Здесь будет переход на экран плеера
-        Log.d("SEARCH_DEBUG", "Track clicked: ${track.trackName}")
+        val intent=Intent(this, PlayerActivity::class.java)
+        // Логируем данные трека перед преобразованием
+        Log.d("SEARCH_TRANSFER", "=== TRANSFERRING TRACK DATA ===")
+        Log.d("SEARCH_TRANSFER", "Track ID: ${track.trackId}")
+        Log.d("SEARCH_TRANSFER", "Track name: ${track.trackName}")
+        Log.d("SEARCH_TRANSFER", "Artist: ${track.artistName}")
+        Log.d("SEARCH_TRANSFER", "Album: ${track.collectionName}")
+        Log.d("SEARCH_TRANSFER", "Duration: ${track.trackTimeMillis}")
+        Log.d("SEARCH_TRANSFER", "Artwork URL: ${track.artworkUrl100}")
+        Log.d("SEARCH_TRANSFER", "Release date: ${track.releaseDate}")
+        Log.d("SEARCH_TRANSFER", "Genre: ${track.primaryGenreName}")
+        Log.d("SEARCH_TRANSFER", "Country: ${track.country}")
+        val trackJson=gson.toJson(track)
+        // Логируем JSON
+        Log.d("SEARCH_TRANSFER", "JSON length: ${trackJson.length}")
+        Log.d("SEARCH_TRANSFER", "JSON (first 300 chars): ${trackJson.take(300)}...")
+
+        // Проверяем, не слишком ли длинный JSON
+        if (trackJson.length > 100000) {
+            Log.w("SEARCH_TRANSFER", "JSON is very long (${trackJson.length} chars)")
+        }
+        intent.putExtra(PlayerActivity.TRACK_EXTRA,trackJson)
+        Log.d("SEARCH_TRANSFER", "Intent has extra: ${intent.hasExtra(PlayerActivity.TRACK_EXTRA)}")
+        startActivity(intent)
+        Log.d("SEARCH_TRANSFER", "PlayerActivity started")
     }
 
     private fun performSearch(searchQuery: String) {
