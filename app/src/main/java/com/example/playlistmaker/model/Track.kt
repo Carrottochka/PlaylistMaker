@@ -23,5 +23,6 @@ data class Track(
     @SerializedName("country") val country: String?,
     @SerializedName("trackTimeMillis") val trackTimeMillis: String?,
     @SerializedName("artworkUrl100") val artworkUrl100: String?,
-    @SerializedName("previewUrl") val previewUrl: String?
+    @SerializedName("previewUrl") val previewUrl: String?,
+
 )
