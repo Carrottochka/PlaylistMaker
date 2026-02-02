@@ -71,7 +71,7 @@ class SearchActivity : AppCompatActivity() {
             insets
         }
 
-        Log.d("SEARCH_DEBUG", "=== SEARCH ACTIVITY CREATED ===")
+
 
         inputEditText = findViewById(R.id.inputEditText)
         clearButton = findViewById(R.id.clearIcon)
@@ -152,7 +152,7 @@ class SearchActivity : AppCompatActivity() {
                     // Запускаем новый поиск с debounce через 2 секунды
                     handler.postDelayed(searchRunnable, SEARCH_DEBOUNCE_DELAY)
 
-                    Log.d("SEARCH_DEBOUNCE", "Search scheduled in $SEARCH_DEBOUNCE_DELAY ms for: '$s'")
+
                 }
             }
 
@@ -197,7 +197,7 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerViews() {
-        Log.d("ADAPTER_DEBUG", "=== SETUP RECYCLERVIEWS ===")
+
 
         adapter = TrackAdapter(tracks) { track ->
             onTrackClicked(track)
@@ -215,7 +215,7 @@ class SearchActivity : AppCompatActivity() {
         historyRecyclerView.adapter = historyAdapter
         historyRecyclerView.setHasFixedSize(true)
 
-        Log.d("ADAPTER_DEBUG", "RecyclerViews setup completed")
+
     }
 
     private fun setupOnEditorActionListener() {
@@ -254,29 +254,19 @@ class SearchActivity : AppCompatActivity() {
         updateHistoryVisibility()
 
         val intent = Intent(this, PlayerActivity::class.java)
-        Log.d("SEARCH_TRANSFER", "=== TRANSFERRING TRACK DATA ===")
-        Log.d("SEARCH_TRANSFER", "Track ID: ${track.trackId}")
-        Log.d("SEARCH_TRANSFER", "Track name: ${track.trackName}")
-        Log.d("SEARCH_TRANSFER", "Artist: ${track.artistName}")
-        Log.d("SEARCH_TRANSFER", "Album: ${track.collectionName}")
-        Log.d("SEARCH_TRANSFER", "Duration: ${track.trackTimeMillis}")
-        Log.d("SEARCH_TRANSFER", "Artwork URL: ${track.artworkUrl100}")
-        Log.d("SEARCH_TRANSFER", "Release date: ${track.releaseDate}")
-        Log.d("SEARCH_TRANSFER", "Genre: ${track.primaryGenreName}")
-        Log.d("SEARCH_TRANSFER", "Country: ${track.country}")
+
 
         val trackJson = gson.toJson(track)
-        Log.d("SEARCH_TRANSFER", "JSON length: ${trackJson.length}")
-        Log.d("SEARCH_TRANSFER", "JSON (first 300 chars): ${trackJson.take(300)}...")
+
 
         if (trackJson.length > 100000) {
             Log.w("SEARCH_TRANSFER", "JSON is very long (${trackJson.length} chars)")
         }
 
         intent.putExtra(PlayerActivity.TRACK_EXTRA, trackJson)
-        Log.d("SEARCH_TRANSFER", "Intent has extra: ${intent.hasExtra(PlayerActivity.TRACK_EXTRA)}")
+
         startActivity(intent)
-        Log.d("SEARCH_TRANSFER", "PlayerActivity started")
+
     }
 
     private fun performSearch(searchQuery: String) {
@@ -295,9 +285,6 @@ class SearchActivity : AppCompatActivity() {
         // Показываем ProgressBar
         showLoadingState()
 
-        Log.d("SEARCH_DEBUG", "=== SEARCH STARTED ===")
-        Log.d("SEARCH_DEBUG", "Search query: '$searchQuery'")
-
         ApiService.retrofit.search(searchQuery)
             .enqueue(object : Callback<SearchResponse> {
                 override fun onResponse(
@@ -310,34 +297,24 @@ class SearchActivity : AppCompatActivity() {
                     // Скрываем ProgressBar
                     hideLoadingState()
 
-                    Log.d("SEARCH_DEBUG", "=== SEARCH RESPONSE ===")
-                    Log.d("SEARCH_DEBUG", "Response isSuccessful: ${response.isSuccessful}")
-                    Log.d("SEARCH_DEBUG", "Response code: ${response.code()}")
 
                     if (response.isSuccessful) {
                         val searchResults = response.body()?.results ?: emptyList()
-                        Log.d("SEARCH_DEBUG", "Results count: ${searchResults.size}")
+
 
                         if (searchResults.isNotEmpty()) {
                             val firstTrack = searchResults.first()
-                            Log.d("SEARCH_DEBUG", "First track: ${firstTrack.trackName}")
-                            Log.d("SEARCH_DEBUG", "First track time: '${firstTrack.trackTimeMillis}'")
-                            Log.d("SEARCH_DEBUG", "First track artist: ${firstTrack.artistName}")
-
                             tracks.clear()
                             tracks.addAll(searchResults)
                             adapter.notifyDataSetChanged()
                             showResultsState()
 
-                            Log.d("SEARCH_DEBUG", "Showing results state")
                         } else {
-                            // Нет результатов
-                            Log.d("SEARCH_DEBUG", "No results found")
+
                             showNoResultsState()
                         }
                     } else {
-                        // Ошибка сервера
-                        Log.d("SEARCH_DEBUG", "Server error: ${response.code()}")
+
                         showErrorState(getString(R.string.server_error))
                     }
                 }
@@ -349,15 +326,13 @@ class SearchActivity : AppCompatActivity() {
                     // Скрываем ProgressBar
                     hideLoadingState()
 
-                    // Ошибка сети
-                    Log.d("SEARCH_DEBUG", "Network error: ${t.message}")
                     showErrorState(getString(R.string.network_error))
                 }
             })
     }
 
     private fun showLoadingState() {
-        Log.d("UI_STATE", "Showing loading state")
+
         progressBar.visibility = View.VISIBLE
         recyclerView.visibility = View.GONE
         placeholderMessage.visibility = View.GONE
@@ -366,7 +341,7 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun hideLoadingState() {
-        Log.d("UI_STATE", "Hiding loading state")
+
         progressBar.visibility = View.GONE
     }
 
@@ -385,7 +360,7 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun showHistoryState() {
-        Log.d("UI_STATE", "Showing history state")
+
         val historyTracks = searchHistory.getHistory()
         historyAdapter.updateTracks(ArrayList(historyTracks))
         historyContainer.visibility = View.VISIBLE
@@ -401,7 +376,7 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun showInitialState() {
-        Log.d("UI_STATE", "Showing initial state")
+
         tracks.clear()
         adapter.notifyDataSetChanged()
 
@@ -412,7 +387,7 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun showResultsState() {
-        Log.d("UI_STATE", "Showing results state")
+
         recyclerView.visibility = View.VISIBLE
         placeholderMessage.visibility = View.GONE
         placeholderNoInternetContainer.visibility = View.GONE
@@ -421,7 +396,7 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun showNoResultsState() {
-        Log.d("UI_STATE", "Showing no results state")
+
         tracks.clear()
         adapter.notifyDataSetChanged()
 
@@ -435,7 +410,7 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun showErrorState(errorMessage: String) {
-        Log.d("UI_STATE", "Showing error state: $errorMessage")
+
         tracks.clear()
         adapter.notifyDataSetChanged()
 

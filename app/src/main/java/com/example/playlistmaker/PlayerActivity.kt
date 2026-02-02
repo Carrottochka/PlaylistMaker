@@ -209,9 +209,9 @@ class PlayerActivity : AppCompatActivity() {
                         currentTimeView.text = formatTime(PREVIEW_DURATION)
                     }
                 }
-                handler.postDelayed(this, 500)
+                handler.postDelayed(this, TIME_UPDATE_DELAY_MS)
             }
-        }, 500)
+        }, TIME_UPDATE_DELAY_MS)
     }
 
     private fun startPlayback() {
@@ -242,6 +242,7 @@ class PlayerActivity : AppCompatActivity() {
     companion object {
         const val TRACK_EXTRA = "track_extra"
         const val PREVIEW_DURATION = 30000
+        private const val TIME_UPDATE_DELAY_MS = 500L
 
         private const val STATE_DEFAULT = 0
         private const val STATE_PREPARED = 1
