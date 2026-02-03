@@ -1,6 +1,8 @@
 package com.example.playlistmaker
 
 import android.app.Application
+import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatDelegate
 
@@ -17,13 +19,19 @@ class App : Application() {
         applyTheme(darkTheme)
     }
 
-    fun switchTheme(darkThemeEnabled: Boolean) {
+    fun switchTheme(darkThemeEnabled: Boolean, context: Context? = null) {
         darkTheme = darkThemeEnabled
         sharedPreferences.edit()
             .putBoolean(KEY_DARK_THEME, darkThemeEnabled)
             .apply()
 
         applyTheme(darkThemeEnabled)
+
+        context?.let {
+            val intent = Intent(it, it.javaClass)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            it.startActivity(intent)
+        }
     }
 
     private fun applyTheme(darkThemeEnabled: Boolean) {

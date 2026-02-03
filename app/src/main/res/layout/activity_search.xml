@@ -10,7 +10,6 @@
     tools:context=".MainActivity">
 
     <!-- Заголовок -->
-
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbarBack"
         style="@style/CustomToolbarStyle"
@@ -60,114 +59,134 @@
 
     </FrameLayout>
 
-    <!-- история поиска -->
-    <FrameLayout
-        android:id="@+id/historyContainer"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="24dp"
-        android:layout_weight="1"
-        android:visibility="gone">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/historyTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:fontFamily="@font/ys_display_medium"
-                android:text="@string/search_history_title"
-                android:textSize="19sp" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/historyRecyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_marginTop="12dp"
-                android:layout_weight="1" />
-
-            <Button
-                android:id="@+id/clearHistoryButton"
-                style="@style/InverseButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom|center_horizontal"
-                android:text="@string/clear_history" />
-        </LinearLayout>
-
-    </FrameLayout>
-
-    <!-- Контейнер для состояний (плейсхолдеры) -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
 
-        <!-- Плейсхолдер "нет результатов" -->
-        <TextView
-            android:id="@+id/placeholderMessage"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:drawableTop="@drawable/errors_no_found_placeholder_120"
-            android:fontFamily="@font/ys_display_medium"
-            android:gravity="center"
-            android:paddingTop="102dp"
-            android:text="@string/no_results"
-            android:textSize="19sp"
-            android:visibility="gone" />
 
-        <!-- Плейсхолдер "нет интернета" с кнопкой -->
-        <LinearLayout
-            android:id="@+id/placeholderNoInternetContainer"
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_gravity="center"
+                android:indeterminateTint="@color/YP_blue"
+                android:visibility="gone" />
+
+        </FrameLayout>
+
+        <!-- история поиска -->
+        <FrameLayout
+            android:id="@+id/historyContainer"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="102dp"
-            android:gravity="center_horizontal"
-            android:orientation="vertical"
+            android:layout_marginTop="24dp"
             android:visibility="gone">
 
-            <TextView
-                android:id="@+id/placeholderNoInternet"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:drawableTop="@drawable/errors_no_internet_120"
-                android:fontFamily="@font/ys_display_medium"
-                android:gravity="center"
-                android:text="@string/server_error"
-                android:textSize="19sp" />
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
-            <TextView
+                <TextView
+                    android:id="@+id/historyTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:fontFamily="@font/ys_display_medium"
+                    android:text="@string/search_history_title"
+                    android:textSize="19sp" />
 
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/ys_display_medium"
-                android:gravity="center"
-                android:padding="24dp"
-                android:text="@string/server_error_1"
-                android:textSize="19sp" />
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/historyRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_marginTop="12dp"
+                    android:layout_weight="1" />
 
-            <Button
-                android:id="@+id/refreshButton"
-                style="@style/InverseButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="@string/refresh_Button" />
+                <Button
+                    android:id="@+id/clearHistoryButton"
+                    style="@style/InverseButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|center_horizontal"
+                    android:text="@string/clear_history" />
+            </LinearLayout>
 
-        </LinearLayout>
+        </FrameLayout>
 
-        <!-- RecyclerView для результатов -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/trackList"
+        <!-- Контейнер для состояний (плейсхолдеры, результаты) -->
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="16dp"
-            android:contentDescription="@string/trackList"
-            android:visibility="visible" />
+            android:layout_height="match_parent">
+
+            <!-- Плейсхолдер "нет результатов" -->
+            <TextView
+                android:id="@+id/placeholderMessage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableTop="@drawable/errors_no_found_placeholder_120"
+                android:fontFamily="@font/ys_display_medium"
+                android:gravity="center"
+                android:paddingTop="102dp"
+                android:text="@string/no_results"
+                android:textSize="19sp"
+                android:visibility="gone" />
+
+            <!-- Плейсхолдер "нет интернета" с кнопкой -->
+            <LinearLayout
+                android:id="@+id/placeholderNoInternetContainer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="102dp"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/placeholderNoInternet"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawableTop="@drawable/errors_no_internet_120"
+                    android:fontFamily="@font/ys_display_medium"
+                    android:gravity="center"
+                    android:text="@string/server_error"
+                    android:textSize="19sp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/ys_display_medium"
+                    android:gravity="center"
+                    android:padding="24dp"
+                    android:text="@string/server_error_1"
+                    android:textSize="19sp" />
+
+                <Button
+                    android:id="@+id/refreshButton"
+                    style="@style/InverseButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/refresh_Button" />
+
+            </LinearLayout>
+
+            <!-- RecyclerView для результатов -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/trackList"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="16dp"
+                android:contentDescription="@string/trackList"
+                android:visibility="visible" />
+
+        </FrameLayout>
 
     </FrameLayout>
 

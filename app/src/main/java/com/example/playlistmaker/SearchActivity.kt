@@ -41,13 +41,25 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var clearHistoryButton: Button
     private lateinit var adapter: TrackAdapter
     private lateinit var historyAdapter: TrackAdapter
+    private lateinit var progressBar: View
 
-    private val tracks = ArrayList<Track>() // результаты поиска
+    private val tracks = ArrayList<Track>()
     private var lastSearchQuery: String = ""
-
+    private var isSearchInProgress = false
 
     private lateinit var searchHistory: SearchHistory
     private val gson = Gson()
+
+    // Handler для реализации debounce
+    private val handler = android.os.Handler(android.os.Looper.getMainLooper())
+
+    // Runnable для выполнения поиска с задержкой
+    private val searchRunnable = Runnable {
+        val searchText = inputEditText.text.toString().trim()
+        if (searchText.isNotEmpty()) {
+            performSearch(searchText)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,7 +71,6 @@ class SearchActivity : AppCompatActivity() {
             insets
         }
 
-        Log.d("SEARCH_DEBUG", "=== SEARCH ACTIVITY CREATED ===")
 
 
         inputEditText = findViewById(R.id.inputEditText)
@@ -68,12 +79,11 @@ class SearchActivity : AppCompatActivity() {
         placeholderNoInternetContainer = findViewById(R.id.placeholderNoInternetContainer)
         refreshButton = findViewById(R.id.refreshButton)
         recyclerView = findViewById(R.id.trackList)
-
+        progressBar = findViewById(R.id.progressBar)
 
         historyContainer = findViewById(R.id.historyContainer)
         historyRecyclerView = findViewById(R.id.historyRecyclerView)
         clearHistoryButton = findViewById(R.id.clearHistoryButton)
-
 
         searchHistory = SearchHistory(this)
 
@@ -81,15 +91,20 @@ class SearchActivity : AppCompatActivity() {
         setupInputEditText()
         setupTextWatcher()
         setupClearButton()
-        setupRecyclerViews() //  настраиваем оба RecyclerView
+        setupRecyclerViews()
         setupOnEditorActionListener()
         setupRefreshButton()
         setupClearHistoryButton()
-
         setupFocusListener()
 
         showInitialState()
         updateHistoryVisibility()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // Удаляем все pending runnables при уничтожении Activity
+        handler.removeCallbacks(searchRunnable)
     }
 
     private fun setupBackToolbar() {
@@ -103,14 +118,12 @@ class SearchActivity : AppCompatActivity() {
         inputEditText.setOnClickListener {
             inputEditText.requestFocus()
             showKeyboard()
-            // При клике на поле ввода обновляю видимость истории
             updateHistoryVisibility()
         }
     }
 
     private fun setupFocusListener() {
         inputEditText.setOnFocusChangeListener { _, hasFocus ->
-            // При изменении фокуса обновляю видимость истории
             updateHistoryVisibility()
         }
     }
@@ -121,12 +134,25 @@ class SearchActivity : AppCompatActivity() {
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 updateClearButtonVisibility(s)
+
                 if (s.isNullOrEmpty()) {
-
+                    // Если поле пустое, показываем историю поиска
                     updateHistoryVisibility()
+                    // Скрываем прогресс бар если был показан
+                    hideLoadingState()
+                    // Отменяем запланированный поиск
+                    handler.removeCallbacks(searchRunnable)
                 } else {
-
+                    // Если есть текст, скрываем историю
                     hideHistory()
+
+                    // Отменяем предыдущий запланированный поиск
+                    handler.removeCallbacks(searchRunnable)
+
+                    // Запускаем новый поиск с debounce через 2 секунды
+                    handler.postDelayed(searchRunnable, SEARCH_DEBOUNCE_DELAY)
+
+
                 }
             }
 
@@ -142,6 +168,13 @@ class SearchActivity : AppCompatActivity() {
             inputEditText.requestFocus()
             hideKeyboard()
             updateHistoryVisibility()
+            // Отменяем все ожидающие поисковые запросы при очистке
+            handler.removeCallbacks(searchRunnable)
+            // Если поиск в процессе, показываем начальное состояние
+            if (isSearchInProgress) {
+                showInitialState()
+                isSearchInProgress = false
+            }
         }
     }
 
@@ -163,31 +196,26 @@ class SearchActivity : AppCompatActivity() {
         imm.hideSoftInputFromWindow(inputEditText.windowToken, 0)
     }
 
-
     private fun setupRecyclerViews() {
-        Log.d("ADAPTER_DEBUG", "=== SETUP RECYCLERVIEWS ===")
 
 
         adapter = TrackAdapter(tracks) { track ->
             onTrackClicked(track)
         }
 
-
         historyAdapter = TrackAdapter(ArrayList()) { track ->
             onTrackClicked(track)
         }
 
-        // Настройка RecyclerView для результатов поиска
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = adapter
         recyclerView.setHasFixedSize(true)
 
-        // Настройка RecyclerView для истории поиска
         historyRecyclerView.layoutManager = LinearLayoutManager(this)
         historyRecyclerView.adapter = historyAdapter
         historyRecyclerView.setHasFixedSize(true)
 
-        Log.d("ADAPTER_DEBUG", "RecyclerViews setup completed")
+
     }
 
     private fun setupOnEditorActionListener() {
@@ -195,6 +223,8 @@ class SearchActivity : AppCompatActivity() {
             if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_SEARCH) {
                 val searchText = inputEditText.text.toString().trim()
                 if (searchText.isNotEmpty()) {
+                    // Отменяем отложенный поиск и выполняем немедленно
+                    handler.removeCallbacks(searchRunnable)
                     performSearch(searchText)
                 }
                 true
@@ -219,46 +249,41 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
-
     private fun onTrackClicked(track: Track) {
         searchHistory.addTrack(track)
         updateHistoryVisibility()
 
-        // TODO: Здесь будет переход на экран плеера
-        val intent=Intent(this, PlayerActivity::class.java)
-        // Логируем данные трека перед преобразованием
-        Log.d("SEARCH_TRANSFER", "=== TRANSFERRING TRACK DATA ===")
-        Log.d("SEARCH_TRANSFER", "Track ID: ${track.trackId}")
-        Log.d("SEARCH_TRANSFER", "Track name: ${track.trackName}")
-        Log.d("SEARCH_TRANSFER", "Artist: ${track.artistName}")
-        Log.d("SEARCH_TRANSFER", "Album: ${track.collectionName}")
-        Log.d("SEARCH_TRANSFER", "Duration: ${track.trackTimeMillis}")
-        Log.d("SEARCH_TRANSFER", "Artwork URL: ${track.artworkUrl100}")
-        Log.d("SEARCH_TRANSFER", "Release date: ${track.releaseDate}")
-        Log.d("SEARCH_TRANSFER", "Genre: ${track.primaryGenreName}")
-        Log.d("SEARCH_TRANSFER", "Country: ${track.country}")
-        val trackJson=gson.toJson(track)
-        // Логируем JSON
-        Log.d("SEARCH_TRANSFER", "JSON length: ${trackJson.length}")
-        Log.d("SEARCH_TRANSFER", "JSON (first 300 chars): ${trackJson.take(300)}...")
+        val intent = Intent(this, PlayerActivity::class.java)
 
-        // Проверяем, не слишком ли длинный JSON
+
+        val trackJson = gson.toJson(track)
+
+
         if (trackJson.length > 100000) {
             Log.w("SEARCH_TRANSFER", "JSON is very long (${trackJson.length} chars)")
         }
-        intent.putExtra(PlayerActivity.TRACK_EXTRA,trackJson)
-        Log.d("SEARCH_TRANSFER", "Intent has extra: ${intent.hasExtra(PlayerActivity.TRACK_EXTRA)}")
+
+        intent.putExtra(PlayerActivity.TRACK_EXTRA, trackJson)
+
         startActivity(intent)
-        Log.d("SEARCH_TRANSFER", "PlayerActivity started")
+
     }
 
     private fun performSearch(searchQuery: String) {
+        if (isSearchInProgress) {
+            Log.d("SEARCH_DEBUG", "Search already in progress, skipping...")
+            return
+        }
+
         lastSearchQuery = searchQuery
         hideKeyboard()
         hideHistory()
 
-        Log.d("SEARCH_DEBUG", "=== SEARCH STARTED ===")
-        Log.d("SEARCH_DEBUG", "Search query: '$searchQuery'")
+        // Устанавливаем флаг что поиск начался
+        isSearchInProgress = true
+
+        // Показываем ProgressBar
+        showLoadingState()
 
         ApiService.retrofit.search(searchQuery)
             .enqueue(object : Callback<SearchResponse> {
@@ -266,57 +291,64 @@ class SearchActivity : AppCompatActivity() {
                     call: Call<SearchResponse>,
                     response: Response<SearchResponse>
                 ) {
+                    // Сбрасываем флаг поиска
+                    isSearchInProgress = false
 
-                    Log.d("SEARCH_DEBUG", "=== SEARCH RESPONSE ===")
-                    Log.d("SEARCH_DEBUG", "Response isSuccessful: ${response.isSuccessful}")
-                    Log.d("SEARCH_DEBUG", "Response code: ${response.code()}")
+                    // Скрываем ProgressBar
+                    hideLoadingState()
+
+
                     if (response.isSuccessful) {
-
                         val searchResults = response.body()?.results ?: emptyList()
 
-                        Log.d("SEARCH_DEBUG", "Results count: ${searchResults.size}")
 
                         if (searchResults.isNotEmpty()) {
-
                             val firstTrack = searchResults.first()
-                            Log.d("SEARCH_DEBUG", "First track: ${firstTrack.trackName}")
-                            Log.d(
-                                "SEARCH_DEBUG",
-                                "First track time: '${firstTrack.trackTimeMillis}'"
-                            )
-                            Log.d("SEARCH_DEBUG", "First track artist: ${firstTrack.artistName}")
-
                             tracks.clear()
                             tracks.addAll(searchResults)
                             adapter.notifyDataSetChanged()
                             showResultsState()
 
-                            Log.d("SEARCH_DEBUG", "Showing results state")
                         } else {
-                            // Нет результатов
-                            Log.d("SEARCH_DEBUG", "No results found")
+
                             showNoResultsState()
                         }
                     } else {
-                        // Ошибка сервера
-                        Log.d("SEARCH_DEBUG", "Server error: ${response.code()}")
+
                         showErrorState(getString(R.string.server_error))
                     }
                 }
 
                 override fun onFailure(call: Call<SearchResponse>, t: Throwable) {
-                    // Ошибка сети
+                    // Сбрасываем флаг поиска
+                    isSearchInProgress = false
+
+                    // Скрываем ProgressBar
+                    hideLoadingState()
+
                     showErrorState(getString(R.string.network_error))
                 }
             })
     }
 
+    private fun showLoadingState() {
+
+        progressBar.visibility = View.VISIBLE
+        recyclerView.visibility = View.GONE
+        placeholderMessage.visibility = View.GONE
+        placeholderNoInternetContainer.visibility = View.GONE
+        historyContainer.visibility = View.GONE
+    }
+
+    private fun hideLoadingState() {
+
+        progressBar.visibility = View.GONE
+    }
 
     private fun updateHistoryVisibility() {
         val hasFocus = inputEditText.hasFocus()
         val isEmpty = inputEditText.text.isNullOrEmpty()
         val hasHistory = searchHistory.hasHistory()
-
 
         val shouldShowHistory = hasFocus && isEmpty && hasHistory
 
@@ -327,43 +359,44 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
-
     private fun showHistoryState() {
 
         val historyTracks = searchHistory.getHistory()
         historyAdapter.updateTracks(ArrayList(historyTracks))
         historyContainer.visibility = View.VISIBLE
 
-
         recyclerView.visibility = View.GONE
         placeholderMessage.visibility = View.GONE
         placeholderNoInternetContainer.visibility = View.GONE
+        progressBar.visibility = View.GONE
     }
-
 
     private fun hideHistory() {
         historyContainer.visibility = View.GONE
     }
 
-
     private fun showInitialState() {
+
         tracks.clear()
         adapter.notifyDataSetChanged()
 
         recyclerView.visibility = View.GONE
         placeholderMessage.visibility = View.GONE
         placeholderNoInternetContainer.visibility = View.GONE
-
+        progressBar.visibility = View.GONE
     }
 
     private fun showResultsState() {
+
         recyclerView.visibility = View.VISIBLE
         placeholderMessage.visibility = View.GONE
         placeholderNoInternetContainer.visibility = View.GONE
         historyContainer.visibility = View.GONE
+        progressBar.visibility = View.GONE
     }
 
     private fun showNoResultsState() {
+
         tracks.clear()
         adapter.notifyDataSetChanged()
 
@@ -371,11 +404,13 @@ class SearchActivity : AppCompatActivity() {
         placeholderMessage.visibility = View.VISIBLE
         placeholderNoInternetContainer.visibility = View.GONE
         historyContainer.visibility = View.GONE
+        progressBar.visibility = View.GONE
 
         placeholderMessage.text = getString(R.string.no_results)
     }
 
     private fun showErrorState(errorMessage: String) {
+
         tracks.clear()
         adapter.notifyDataSetChanged()
 
@@ -383,15 +418,21 @@ class SearchActivity : AppCompatActivity() {
         placeholderMessage.visibility = View.GONE
         placeholderNoInternetContainer.visibility = View.VISIBLE
         historyContainer.visibility = View.GONE
+        progressBar.visibility = View.GONE
 
         val errorTextView = findViewById<TextView>(R.id.placeholderNoInternet)
         errorTextView.text = errorMessage
     }
 
-    // Добавляю обновление истории при возобновлении активности
     override fun onResume() {
         super.onResume()
         updateHistoryVisibility()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        // Отменяем все отложенные операции при паузе
+        handler.removeCallbacks(searchRunnable)
     }
 
     private var userSearch: String = SEARCH_DEF
@@ -403,6 +444,7 @@ class SearchActivity : AppCompatActivity() {
     companion object {
         const val SEARCH_KEY = "SEARCH_KEY"
         const val SEARCH_DEF = ""
+        private const val SEARCH_DEBOUNCE_DELAY = 2000L
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
