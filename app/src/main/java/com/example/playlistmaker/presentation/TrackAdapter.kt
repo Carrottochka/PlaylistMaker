@@ -1,10 +1,9 @@
-package com.example.playlistmaker.model
+package com.example.playlistmaker.presentation
 
 import android.util.Log
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import java.util.Locale
+import com.example.playlistmaker.domain.model.Track
 
 class TrackAdapter(
     private var tracks: List<Track>,

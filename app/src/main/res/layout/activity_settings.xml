@@ -7,7 +7,7 @@
     android:layout_height="wrap_content"
     android:background="?attr/android:colorBackground"
     android:orientation="vertical"
-    tools:context=".MainActivity"
+    tools:context=".presentation.MainActivity"
     >
 
     <com.google.android.material.appbar.MaterialToolbar
