@@ -1,4 +1,4 @@
-package com.example.playlistmaker.api
+package com.example.playlistmaker.domain.api
 
 import retrofit2.Call
 import retrofit2.http.GET

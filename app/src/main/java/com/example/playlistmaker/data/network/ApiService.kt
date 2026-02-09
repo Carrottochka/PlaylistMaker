@@ -1,4 +1,6 @@
-package com.example.playlistmaker.api
+package com.example.playlistmaker.data.network
+
+import com.example.playlistmaker.domain.api.ItunesApi
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -15,5 +17,3 @@ object ApiService {
 
 
 }
-
-

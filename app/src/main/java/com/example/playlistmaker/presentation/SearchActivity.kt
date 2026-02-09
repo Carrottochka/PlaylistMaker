@@ -1,32 +1,30 @@
-package com.example.playlistmaker
+package com.example.playlistmaker.presentation
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
-import android.widget.EditText
-import android.widget.ImageView
-import androidx.appcompat.app.AppCompatActivity
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
+import android.widget.EditText
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.playlistmaker.api.ApiService
-import com.example.playlistmaker.api.SearchResponse
+import com.example.playlistmaker.R
+import com.example.playlistmaker.Creator
+import com.example.playlistmaker.domain.api.TrackInteractor
+import com.example.playlistmaker.domain.model.Track
 import com.google.android.material.appbar.MaterialToolbar
-import com.example.playlistmaker.model.Track
-import com.example.playlistmaker.model.TrackAdapter
 import com.google.gson.Gson
-import retrofit2.Call
-import retrofit2.Response
-import retrofit2.Callback
 
 class SearchActivity : AppCompatActivity() {
 
@@ -47,11 +45,12 @@ class SearchActivity : AppCompatActivity() {
     private var lastSearchQuery: String = ""
     private var isSearchInProgress = false
 
-    private lateinit var searchHistory: SearchHistory
+    private val tracksInteractor: TrackInteractor = Creator.provideTracksInteractor()
+    private val searchHistory = SearchHistory(this)
     private val gson = Gson()
 
     // Handler для реализации debounce
-    private val handler = android.os.Handler(android.os.Looper.getMainLooper())
+    private val handler = Handler(Looper.getMainLooper())
 
     // Runnable для выполнения поиска с задержкой
     private val searchRunnable = Runnable {
@@ -71,22 +70,7 @@ class SearchActivity : AppCompatActivity() {
             insets
         }
 
-
-
-        inputEditText = findViewById(R.id.inputEditText)
-        clearButton = findViewById(R.id.clearIcon)
-        placeholderMessage = findViewById(R.id.placeholderMessage)
-        placeholderNoInternetContainer = findViewById(R.id.placeholderNoInternetContainer)
-        refreshButton = findViewById(R.id.refreshButton)
-        recyclerView = findViewById(R.id.trackList)
-        progressBar = findViewById(R.id.progressBar)
-
-        historyContainer = findViewById(R.id.historyContainer)
-        historyRecyclerView = findViewById(R.id.historyRecyclerView)
-        clearHistoryButton = findViewById(R.id.clearHistoryButton)
-
-        searchHistory = SearchHistory(this)
-
+        initViews()
         setupBackToolbar()
         setupInputEditText()
         setupTextWatcher()
@@ -105,6 +89,19 @@ class SearchActivity : AppCompatActivity() {
         super.onDestroy()
         // Удаляем все pending runnables при уничтожении Activity
         handler.removeCallbacks(searchRunnable)
+    }
+
+    private fun initViews() {
+        inputEditText = findViewById(R.id.inputEditText)
+        clearButton = findViewById(R.id.clearIcon)
+        placeholderMessage = findViewById(R.id.placeholderMessage)
+        placeholderNoInternetContainer = findViewById(R.id.placeholderNoInternetContainer)
+        refreshButton = findViewById(R.id.refreshButton)
+        recyclerView = findViewById(R.id.trackList)
+        progressBar = findViewById(R.id.progressBar)
+        historyContainer = findViewById(R.id.historyContainer)
+        historyRecyclerView = findViewById(R.id.historyRecyclerView)
+        clearHistoryButton = findViewById(R.id.clearHistoryButton)
     }
 
     private fun setupBackToolbar() {
@@ -151,8 +148,6 @@ class SearchActivity : AppCompatActivity() {
 
                     // Запускаем новый поиск с debounce через 2 секунды
                     handler.postDelayed(searchRunnable, SEARCH_DEBOUNCE_DELAY)
-
-
                 }
             }
 
@@ -197,13 +192,13 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerViews() {
-
-
+        // Адаптер для результатов поиска
         adapter = TrackAdapter(tracks) { track ->
             onTrackClicked(track)
         }
 
-        historyAdapter = TrackAdapter(ArrayList()) { track ->
+        // Адаптер для истории поиска
+        historyAdapter = TrackAdapter(emptyList()) { track ->
             onTrackClicked(track)
         }
 
@@ -214,8 +209,6 @@ class SearchActivity : AppCompatActivity() {
         historyRecyclerView.layoutManager = LinearLayoutManager(this)
         historyRecyclerView.adapter = historyAdapter
         historyRecyclerView.setHasFixedSize(true)
-
-
     }
 
     private fun setupOnEditorActionListener() {
@@ -254,24 +247,13 @@ class SearchActivity : AppCompatActivity() {
         updateHistoryVisibility()
 
         val intent = Intent(this, PlayerActivity::class.java)
-
-
         val trackJson = gson.toJson(track)
-
-
-        if (trackJson.length > 100000) {
-            Log.w("SEARCH_TRANSFER", "JSON is very long (${trackJson.length} chars)")
-        }
-
         intent.putExtra(PlayerActivity.TRACK_EXTRA, trackJson)
-
         startActivity(intent)
-
     }
 
     private fun performSearch(searchQuery: String) {
         if (isSearchInProgress) {
-            Log.d("SEARCH_DEBUG", "Search already in progress, skipping...")
             return
         }
 
@@ -285,54 +267,28 @@ class SearchActivity : AppCompatActivity() {
         // Показываем ProgressBar
         showLoadingState()
 
-        ApiService.retrofit.search(searchQuery)
-            .enqueue(object : Callback<SearchResponse> {
-                override fun onResponse(
-                    call: Call<SearchResponse>,
-                    response: Response<SearchResponse>
-                ) {
-                    // Сбрасываем флаг поиска
+        // Используем интерактор с callback
+        tracksInteractor.searchTrack(searchQuery, object : TrackInteractor.TrackConsumer {
+            override fun consume(foundTracks: List<Track>) {
+                // Возвращаемся в главный поток для обновления UI
+                runOnUiThread {
                     isSearchInProgress = false
-
-                    // Скрываем ProgressBar
                     hideLoadingState()
 
-
-                    if (response.isSuccessful) {
-                        val searchResults = response.body()?.results ?: emptyList()
-
-
-                        if (searchResults.isNotEmpty()) {
-                            val firstTrack = searchResults.first()
-                            tracks.clear()
-                            tracks.addAll(searchResults)
-                            adapter.notifyDataSetChanged()
-                            showResultsState()
-
-                        } else {
-
-                            showNoResultsState()
-                        }
+                    if (foundTracks.isNotEmpty()) {
+                        tracks.clear()
+                        tracks.addAll(foundTracks)
+                        adapter.notifyDataSetChanged()
+                        showResultsState()
                     } else {
-
-                        showErrorState(getString(R.string.server_error))
+                        showNoResultsState()
                     }
                 }
-
-                override fun onFailure(call: Call<SearchResponse>, t: Throwable) {
-                    // Сбрасываем флаг поиска
-                    isSearchInProgress = false
-
-                    // Скрываем ProgressBar
-                    hideLoadingState()
-
-                    showErrorState(getString(R.string.network_error))
-                }
-            })
+            }
+        })
     }
 
     private fun showLoadingState() {
-
         progressBar.visibility = View.VISIBLE
         recyclerView.visibility = View.GONE
         placeholderMessage.visibility = View.GONE
@@ -341,7 +297,6 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun hideLoadingState() {
-
         progressBar.visibility = View.GONE
     }
 
@@ -360,9 +315,8 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun showHistoryState() {
-
         val historyTracks = searchHistory.getHistory()
-        historyAdapter.updateTracks(ArrayList(historyTracks))
+        historyAdapter.updateTracks(historyTracks)
         historyContainer.visibility = View.VISIBLE
 
         recyclerView.visibility = View.GONE
@@ -376,7 +330,6 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun showInitialState() {
-
         tracks.clear()
         adapter.notifyDataSetChanged()
 
@@ -387,7 +340,6 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun showResultsState() {
-
         recyclerView.visibility = View.VISIBLE
         placeholderMessage.visibility = View.GONE
         placeholderNoInternetContainer.visibility = View.GONE
@@ -396,7 +348,6 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun showNoResultsState() {
-
         tracks.clear()
         adapter.notifyDataSetChanged()
 
@@ -410,7 +361,6 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun showErrorState(errorMessage: String) {
-
         tracks.clear()
         adapter.notifyDataSetChanged()
 
@@ -441,16 +391,16 @@ class SearchActivity : AppCompatActivity() {
         outState.putString(SEARCH_KEY, userSearch)
     }
 
-    companion object {
-        const val SEARCH_KEY = "SEARCH_KEY"
-        const val SEARCH_DEF = ""
-        private const val SEARCH_DEBOUNCE_DELAY = 2000L
-    }
-
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
         userSearch = savedInstanceState.getString(SEARCH_KEY, SEARCH_DEF)
         inputEditText.setText(userSearch)
         updateHistoryVisibility()
+    }
+
+    companion object {
+        const val SEARCH_KEY = "SEARCH_KEY"
+        const val SEARCH_DEF = ""
+        private const val SEARCH_DEBOUNCE_DELAY = 2000L
     }
 }

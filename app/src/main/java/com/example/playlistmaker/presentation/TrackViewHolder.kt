@@ -1,4 +1,4 @@
-package com.example.playlistmaker.model
+package com.example.playlistmaker.presentation
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.example.playlistmaker.R
-import java.text.SimpleDateFormat
+import com.example.playlistmaker.domain.model.Track
 import java.util.Locale
 
 class TrackViewHolder(
@@ -68,7 +68,7 @@ class TrackViewHolder(
             val minutes = totalSeconds / 60
             val seconds = totalSeconds % 60
 
-            val result = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
+            val result = String.Companion.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
             println("DEBUG: formatted result = $result")
             result
 
